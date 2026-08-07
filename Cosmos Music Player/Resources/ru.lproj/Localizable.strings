@@ -28,6 +28,7 @@
 
 /* General UI strings */
 "all_songs" = "Все песни";
+"recently_added" = "Недавно добавленные";
 "liked_songs" = "Любимые песни";
 "add_songs" = "Открыть Файлы";
 "import_music_files" = "Импортировать музыкальные файлы";

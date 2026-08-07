@@ -28,6 +28,7 @@
 
 /* General UI strings */
 "all_songs" = "All Songs";
+"recently_added" = "Recently Added";
 "liked_songs" = "Liked Songs";
 "add_songs" = "Open Files";
 "import_music_files" = "Import music files";

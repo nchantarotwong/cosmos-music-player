@@ -28,6 +28,7 @@
 
 /* General UI strings */
 "all_songs" = "所有歌曲";
+"recently_added" = "最近添加";
 "liked_songs" = "我喜欢的音乐";
 "add_songs" = "打开文件";
 "import_music_files" = "导入音乐文件";

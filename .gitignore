@@ -102,3 +102,6 @@ Config.plist
 
 # macOS
 .DS_Store
+# Agent guides (local, per-developer)
+CLAUDE.md
+AGENTS.md

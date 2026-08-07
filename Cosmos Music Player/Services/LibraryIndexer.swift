@@ -661,8 +661,13 @@ class LibraryIndexer: NSObject, ObservableObject {
             }
 
             await FileCleanupManager.shared.reconcileMissingFiles(in: [documentsPath])
+
+            // Offline mode skips copyFilesFromSharedContainer(), so re-scan any
+            // user-selected folders here too.
+            await processScannedFolders()
+
             postPendingLibraryRefresh()
-            
+
             await MainActor.run {
                 isIndexing = false
                 print("Offline library scan completed. Found \(tracksFound) tracks.")
@@ -1053,6 +1058,103 @@ class LibraryIndexer: NSObject, ObservableObject {
 
         // Process previously stored external bookmarks (both document picker and share extension files)
         await processStoredExternalBookmarks()
+
+        // Re-scan user-selected folders to pick up any newly-added files
+        await processScannedFolders()
+    }
+
+    // MARK: - User-selected folder scanning
+
+    /// Re-scan every folder the user has chosen to watch. Each folder's
+    /// security scope is opened just long enough to enumerate and import the
+    /// music inside it; per-file bookmarks stored during the import mean the
+    /// files remain reachable for playback without re-opening the folder.
+    func processScannedFolders() async {
+        let folderURLs = ScannedFoldersManager.shared.resolvedFolderURLs()
+        guard !folderURLs.isEmpty else { return }
+
+        print("📁 Re-scanning \(folderURLs.count) watched folder(s)")
+        for folderURL in folderURLs {
+            guard folderURL.startAccessingSecurityScopedResource() else {
+                print("❌ Failed to access watched folder: \(folderURL.path)")
+                continue
+            }
+            defer { folderURL.stopAccessingSecurityScopedResource() }
+
+            _ = await importMusicFromFolder(folderURL)
+        }
+    }
+
+    /// Import individually-picked external files: hold each file's security
+    /// scope, persist a per-file bookmark, and import it. Returns the number of
+    /// newly imported tracks. Centralized here so any screen can trigger import
+    /// without duplicating the bookmark handling.
+    @discardableResult
+    func importExternalFiles(_ urls: [URL], allowExcludedReimport: Bool = true) async -> Int {
+        var importedCount = 0
+        for url in urls {
+            if let scheme = url.scheme?.lowercased(), ["http", "https", "ftp", "sftp"].contains(scheme) {
+                print("❌ Rejected network URL: \(url.absoluteString)")
+                continue
+            }
+            guard url.startAccessingSecurityScopedResource() else {
+                print("❌ Failed to access picked file: \(url.lastPathComponent)")
+                continue
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            if let bookmarkData = try? url.bookmarkData(
+                options: .minimalBookmark,
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            ) {
+                await storeBookmarkPermanently(bookmarkData, for: url)
+            }
+
+            if await processExternalFile(url, allowExcludedReimport: allowExcludedReimport) {
+                importedCount += 1
+            }
+        }
+        return importedCount
+    }
+
+    /// Enumerate the music files inside an already-accessible folder, persist a
+    /// per-file bookmark for each, and import it. The caller must already hold
+    /// the folder's security-scoped access. Returns the number of newly
+    /// imported tracks.
+    @discardableResult
+    func importMusicFromFolder(_ folderURL: URL, allowExcludedReimport: Bool = false) async -> Int {
+        let musicFiles: [URL]
+        do {
+            musicFiles = try await findMusicFiles(in: folderURL)
+        } catch {
+            print("⚠️ Failed to enumerate watched folder \(folderURL.path): \(error)")
+            return 0
+        }
+
+        print("📁 Found \(musicFiles.count) music file(s) in \(folderURL.lastPathComponent)")
+
+        var importedCount = 0
+        for fileURL in musicFiles {
+            // Create a per-file bookmark while the parent folder's security
+            // scope is held, so the file resolves standalone later.
+            if let bookmarkData = try? fileURL.bookmarkData(
+                options: .minimalBookmark,
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            ) {
+                await storeBookmarkPermanently(bookmarkData, for: fileURL)
+            }
+
+            if await processExternalFile(fileURL, allowExcludedReimport: allowExcludedReimport) {
+                importedCount += 1
+            }
+        }
+
+        // Reuse the existing folder-playlist grouping for the imported files.
+        await processFolderPlaylists(allMusicFiles: musicFiles)
+
+        return importedCount
     }
 
     private func processSharedURLs(from sharedContainer: URL) async {

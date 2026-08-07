@@ -49,6 +49,9 @@ struct LibraryView: View {
     @State private var newTracksFoundCount = 0
     @State private var syncCompleted = false
     @State private var showMusicPicker = false
+    @State private var showFolderPicker = false
+    @State private var showManageFolders = false
+    @StateObject private var scannedFolders = ScannedFoldersManager.shared
 
     // Helper function to show sync feedback
     private func showSyncFeedback(trackCountBefore: Int, trackCountAfter: Int) {
@@ -230,6 +233,65 @@ struct LibraryView: View {
         }
     }
 
+    private func addScannedFolders(_ urls: [URL]) {
+        Task {
+            var importedCount = 0
+            var addedFolders = 0
+
+            for url in urls {
+                // Reject network URLs
+                if let scheme = url.scheme?.lowercased(), ["http", "https", "ftp", "sftp"].contains(scheme) {
+                    print("❌ Rejected network folder URL: \(url.absoluteString)")
+                    continue
+                }
+
+                guard url.startAccessingSecurityScopedResource() else {
+                    print("❌ Failed to access selected folder: \(url.path)")
+                    continue
+                }
+                defer { url.stopAccessingSecurityScopedResource() }
+
+                // Persist the folder so it is re-scanned on future launches,
+                // then import whatever music it currently contains.
+                if await ScannedFoldersManager.shared.addFolder(url) {
+                    addedFolders += 1
+                }
+                importedCount += await libraryIndexer.importMusicFromFolder(url, allowExcludedReimport: true)
+            }
+
+            await MainActor.run {
+                if addedFolders == 0 && importedCount == 0 {
+                    syncToastIcon = "info.circle.fill"
+                    syncToastColor = .blue
+                    syncToastMessage = NSLocalizedString("folder_already_watched", value: "Folder already added", comment: "")
+                } else {
+                    syncToastIcon = "folder.fill.badge.plus"
+                    syncToastColor = .green
+                    if importedCount == 1 {
+                        syncToastMessage = NSLocalizedString("folder_one_song_added", value: "1 song added from folder", comment: "")
+                    } else if importedCount > 1 {
+                        syncToastMessage = String(format: NSLocalizedString("folder_songs_added", value: "%d songs added from folder", comment: ""), importedCount)
+                    } else {
+                        syncToastMessage = NSLocalizedString("folder_added_no_new", value: "Folder added", comment: "")
+                    }
+                }
+
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showSyncToast = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showSyncToast = false
+                    }
+                }
+            }
+
+            if importedCount > 0, let onManualSync = onManualSync {
+                _ = await onManualSync()
+            }
+        }
+    }
+
     @ViewBuilder
     private func homeSectionView(for sectionId: HomeSectionId) -> some View {
         switch sectionId {
@@ -242,6 +304,19 @@ struct LibraryView: View {
                     subtitle: Localized.songsCountOnly(tracks.count),
                     icon: "music.note",
                     color: settings.backgroundColorChoice.color
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+
+        case .recentlyAdded:
+            NavigationLink {
+                RecentlyAddedScreen(tracks: tracks)
+            } label: {
+                LibrarySectionRowView(
+                    title: Localized.recentlyAdded,
+                    subtitle: NSLocalizedString("recently_added_subtitle", value: "Newest in your library", comment: ""),
+                    icon: "clock.badge.checkmark",
+                    color: .teal
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -299,11 +374,28 @@ struct LibraryView: View {
             .buttonStyle(PlainButtonStyle())
 
         case .addSongs:
-            Button(action: {
-                showMusicPicker = true
-            }) {
+            Menu {
+                Button {
+                    showMusicPicker = true
+                } label: {
+                    Label(NSLocalizedString("add_music_choose_files", value: "Choose Files", comment: "Import individual audio files"), systemImage: "doc.badge.plus")
+                }
+                Button {
+                    showFolderPicker = true
+                } label: {
+                    Label(NSLocalizedString("add_music_scan_folder", value: "Scan Folder", comment: "Select a folder to scan for music"), systemImage: "folder.badge.plus")
+                }
+                if !scannedFolders.folders.isEmpty {
+                    Divider()
+                    Button {
+                        showManageFolders = true
+                    } label: {
+                        Label(NSLocalizedString("add_music_manage_folders", value: "Manage Folders", comment: "Manage watched music folders"), systemImage: "folder.gearshape")
+                    }
+                }
+            } label: {
                 LibrarySectionRowView(
-                    title: Localized.addSongs,
+                    title: NSLocalizedString("add_music", value: "Add Music", comment: "Add music to the library"),
                     subtitle: Localized.importMusicFiles,
                     icon: "plus.circle.fill",
                     color: .blue
@@ -611,6 +703,14 @@ struct LibraryView: View {
                 importMusicFiles(urls)
             }
         }
+        .sheet(isPresented: $showFolderPicker) {
+            MusicFolderPicker { urls in
+                addScannedFolders(urls)
+            }
+        }
+        .sheet(isPresented: $showManageFolders) {
+            ScannedFoldersView()
+        }
     }
 }
 
@@ -705,6 +805,43 @@ struct AllSongsScreen: View {
     }
 
     private func shuffleAllSongs() {
+        guard !tracks.isEmpty else { return }
+        let shuffled = tracks.shuffled()
+        Task {
+            await appCoordinator.playTrack(shuffled[0], queue: shuffled)
+        }
+    }
+}
+
+struct RecentlyAddedScreen: View {
+    let tracks: [Track]
+    @EnvironmentObject private var appCoordinator: AppCoordinator
+    @State private var settings = DeleteSettings.load()
+
+    var body: some View {
+        // TrackListView defaults its sort to `.dateNewest` (track id descending),
+        // which is insertion order — newest additions first.
+        TrackListView(tracks: tracks, listIdentifier: "recently_added")
+            .background(ScreenSpecificBackgroundView(screen: .allSongs))
+            .navigationTitle(Localized.recentlyAdded)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        shuffleRecentlyAdded()
+                    } label: {
+                        Image(systemName: "shuffle")
+                            .foregroundColor(settings.backgroundColorChoice.color)
+                    }
+                    .disabled(tracks.isEmpty)
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .cosmosSettingsDidChange)) { _ in
+                settings = DeleteSettings.load()
+            }
+    }
+
+    private func shuffleRecentlyAdded() {
         guard !tracks.isEmpty else { return }
         let shuffled = tracks.shuffled()
         Task {
@@ -2419,6 +2556,102 @@ struct MusicFilePicker: UIViewControllerRepresentable {
         func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
             // User cancelled, clean up delegate
             controller.delegate = nil
+        }
+    }
+}
+
+struct MusicFolderPicker: UIViewControllerRepresentable {
+    let onFoldersPicked: ([URL]) -> Void
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.folder])
+        picker.delegate = context.coordinator
+        picker.allowsMultipleSelection = true
+        picker.modalPresentationStyle = .formSheet
+        context.coordinator.picker = picker
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+
+    static func dismantleUIViewController(_ uiViewController: UIDocumentPickerViewController, coordinator: Coordinator) {
+        uiViewController.delegate = nil
+        coordinator.picker = nil
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onFoldersPicked: onFoldersPicked)
+    }
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let onFoldersPicked: ([URL]) -> Void
+        weak var picker: UIDocumentPickerViewController?
+
+        init(onFoldersPicked: @escaping ([URL]) -> Void) {
+            self.onFoldersPicked = onFoldersPicked
+            super.init()
+        }
+
+        deinit {
+            picker?.delegate = nil
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            onFoldersPicked(urls)
+            controller.delegate = nil
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            controller.delegate = nil
+        }
+    }
+}
+
+struct ScannedFoldersView: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var manager = ScannedFoldersManager.shared
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if manager.folders.isEmpty {
+                    Text(NSLocalizedString("no_watched_folders", value: "No folders are being watched.", comment: ""))
+                        .foregroundColor(.secondary)
+                } else {
+                    Section(footer: Text(NSLocalizedString("watched_folders_footer", value: "Watched folders are re-scanned for new music each time you sync. Removing a folder keeps songs already imported from it.", comment: ""))) {
+                        ForEach(manager.folders) { folder in
+                            HStack(spacing: 12) {
+                                Image(systemName: "folder.fill")
+                                    .foregroundColor(.blue)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(folder.name)
+                                        .font(.body)
+                                        .lineLimit(1)
+                                    Text(folder.displayPath)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                }
+                            }
+                        }
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                manager.removeFolder(manager.folders[index])
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(NSLocalizedString("watched_folders_title", value: "Watched Folders", comment: ""))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(NSLocalizedString("done", value: "Done", comment: "")) {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }

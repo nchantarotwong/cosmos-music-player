@@ -9,8 +9,8 @@ struct AlbumsScreen: View {
     
     var body: some View {
         ZStack {
-            ScreenSpecificBackgroundView(screen: .albums)
-            
+            Aether.Color.background.ignoresSafeArea()
+
             VStack {
                 if albums.isEmpty {
                     EmptyAlbumsView()
@@ -18,10 +18,10 @@ struct AlbumsScreen: View {
                     ScrollView {
                         LazyVGrid(
                             columns: [
-                                GridItem(.flexible(), spacing: 20),
+                                GridItem(.flexible(), spacing: Aether.Spacing.md),
                                 GridItem(.flexible())
                             ],
-                            spacing: 16
+                            spacing: Aether.Spacing.lg
                         ) {
                             ForEach(albums, id: \.id) { album in
                                 NavigationLink {
@@ -34,14 +34,15 @@ struct AlbumsScreen: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .padding(16)
+                        .padding(Aether.Spacing.screenMargin)
                         .padding(.bottom, 100) // Add padding for mini player
                     }
                 }
             }
         }
         .navigationTitle(Localized.albums)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear(perform: loadAlbums)
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("LibraryNeedsRefresh"))) { _ in
             loadAlbums()
@@ -81,55 +82,36 @@ private struct EmptyAlbumsView: View {
     }
 }
 
-// Album card with artwork loading
+// Album card — the cover is the card (Aether "Shelves" grid). Title + artist
+// sit below the artwork on the background, no boxed container.
 private struct AlbumCardView: View {
     let album: Album
     let tracks: [Track]
-    @State private var artworkImage: UIImage?
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Album artwork area with fixed aspect ratio
-            GeometryReader { geometry in
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.15))
-                    .overlay {
-                        if let image = artworkImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: geometry.size.width, height: geometry.size.width)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        } else {
-                            Image(systemName: "music.note")
-                                .font(.system(size: 36))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-            }
-            .aspectRatio(1, contentMode: .fit)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(album.title)
-                    .font(.headline)
-                    .lineLimit(2)
-                
-                Text(Localized.songsCount(tracks.count))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .frame(minHeight: 60, alignment: .topLeading)
+
+    /// Prefer the album's declared artist; fall back to song count.
+    private var subtitle: String {
+        if let artist = album.albumArtist?.trimmingCharacters(in: .whitespacesAndNewlines), !artist.isEmpty {
+            return artist
         }
-        .task {
-            loadAlbumArtwork()
-        }
+        return Localized.songsCount(tracks.count)
     }
-    
-    private func loadAlbumArtwork() {
-        // Use the first track in the album to get artwork
-        guard let firstTrack = tracks.first else { return }
-        Task {
-            artworkImage = await ArtworkManager.shared.getThumbnail(for: firstTrack, maxPixelSize: 512)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Aether.Spacing.xs) {
+            AetherArtwork(track: tracks.first, maxPixelSize: 512)
+                .aspectRatio(1, contentMode: .fit)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(album.title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Aether.Color.textPrimary)
+                    .lineLimit(1)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(Aether.Color.textSecondary)
+                    .lineLimit(1)
+            }
         }
     }
 }

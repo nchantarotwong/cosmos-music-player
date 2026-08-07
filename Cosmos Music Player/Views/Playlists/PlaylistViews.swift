@@ -45,21 +45,22 @@ struct PlaylistsScreen: View {
 
     var body: some View {
         ZStack {
-            ScreenSpecificBackgroundView(screen: .playlists)
+            Aether.Color.background.ignoresSafeArea()
 
             VStack {
                 if playlists.isEmpty {
-                    VStack(spacing: 16) {
+                    VStack(spacing: Aether.Spacing.md) {
                         Image(systemName: "music.note.list")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 40, weight: .thin))
+                            .foregroundStyle(Aether.Color.textTertiary)
 
                         Text(Localized.noPlaylistsYet)
                             .font(.headline)
+                            .foregroundStyle(Aether.Color.textPrimary)
 
                         Text(Localized.createPlaylistsInstruction)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(Aether.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -107,7 +108,8 @@ struct PlaylistsScreen: View {
                 }
             }
             .navigationTitle(Localized.playlists)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(isEditMode ? Localized.done : Localized.edit) {

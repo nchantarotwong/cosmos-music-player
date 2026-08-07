@@ -28,6 +28,7 @@
 
 /* General UI strings */
 "all_songs" = "Vos musiques";
+"recently_added" = "Ajouts récents";
 "liked_songs" = "Favoris";
 "add_songs" = "Ouvrir Fichiers";
 "import_music_files" = "Importer des musiques";

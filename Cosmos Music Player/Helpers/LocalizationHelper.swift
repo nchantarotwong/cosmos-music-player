@@ -56,6 +56,7 @@ struct Localized {
     
     // MARK: - General UI strings
     static let allSongs = "all_songs".localized
+    static let recentlyAdded = "recently_added".localized
     static let likedSongs = "liked_songs".localized
     static let addSongs = "add_songs".localized
     static let importMusicFiles = "import_music_files".localized

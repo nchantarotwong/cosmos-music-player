@@ -5,96 +5,99 @@ struct ArtistsScreen: View {
     let allTracks: [Track]
     @EnvironmentObject private var appCoordinator: AppCoordinator
     @State private var artists: [Artist] = []
+    @State private var repTrackByArtistId: [Int64: Track] = [:]
     @State private var settings = DeleteSettings.load()
-    
+
+    private let columns = [
+        GridItem(.flexible(), spacing: Aether.Spacing.md),
+        GridItem(.flexible(), spacing: Aether.Spacing.md),
+        GridItem(.flexible())
+    ]
+
     var body: some View {
         ZStack {
-            ScreenSpecificBackgroundView(screen: .artists)
-            
-            VStack {
-                if artists.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.2")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        
-                        Text("No artists found")
-                            .font(.headline)
-                        
-                        Text("Artists will appear here once you add music to your library")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(artists, id: \.id) { artist in
-                        ZStack {
-                            NavigationLink(destination: ArtistDetailScreen(artist: artist, allTracks: allTracks)) {
-                                EmptyView()
+            Aether.Color.background.ignoresSafeArea()
+
+            if artists.isEmpty {
+                VStack(spacing: Aether.Spacing.md) {
+                    Image(systemName: "person.2")
+                        .font(.system(size: 40, weight: .thin))
+                        .foregroundStyle(Aether.Color.textTertiary)
+                    Text(NSLocalizedString("no_artists_found", value: "No artists found", comment: ""))
+                        .font(.headline)
+                        .foregroundStyle(Aether.Color.textPrimary)
+                    Text(NSLocalizedString("artists_will_appear", value: "Artists will appear here once you add music to your library", comment: ""))
+                        .font(.subheadline)
+                        .foregroundStyle(Aether.Color.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: Aether.Spacing.lg) {
+                        ForEach(artists, id: \.id) { artist in
+                            NavigationLink {
+                                ArtistDetailScreen(artist: artist, allTracks: allTracks)
+                            } label: {
+                                ArtistTile(
+                                    artist: artist,
+                                    repTrack: artist.id.flatMap { repTrackByArtistId[$0] }
+                                )
                             }
-                            .opacity(0.0)
-                            
-                            HStack {
-                                Image(systemName: "person")
-                                    .foregroundColor(.purple)
-                                    .frame(width: 24, height: 24)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(artist.name)
-                                        .font(.headline)
-                                    
-                                    Text(Localized.artist)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(.ultraThinMaterial)
-                                    .opacity(0.7)
-                            )
+                            .buttonStyle(.plain)
                         }
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                        .listRowBackground(Color.clear)
                     }
-                    .listStyle(PlainListStyle())
-                    .scrollContentBackground(.hidden)
-                    .padding(.horizontal, 8)
-                    .safeAreaInset(edge: .bottom) {
-                        Color.clear.frame(height: 100) // Space for mini player
-                    }
+                    .padding(Aether.Spacing.screenMargin)
+                    .padding(.bottom, 100) // Space for mini player
                 }
             }
-            .navigationTitle(Localized.artists)
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                loadArtists()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LibraryNeedsRefresh"))) { _ in
-                loadArtists()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .cosmosSettingsDidChange)) { _ in
-                settings = DeleteSettings.load()
-            }
+        }
+        .navigationTitle(Localized.artists)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .onAppear {
+            loadArtists()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LibraryNeedsRefresh"))) { _ in
+            loadArtists()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .cosmosSettingsDidChange)) { _ in
+            settings = DeleteSettings.load()
         }
     } // end body
-    
+
     private func loadArtists() {
         do {
             artists = try appCoordinator.databaseManager.getAllArtists()
+            // Representative track per artist for album-derived artwork.
+            var reps: [Int64: Track] = [:]
+            for track in allTracks {
+                if let artistId = track.artistId, reps[artistId] == nil {
+                    reps[artistId] = track
+                }
+            }
+            repTrackByArtistId = reps
         } catch {
             print("Failed to load artists: \(error)")
+        }
+    }
+}
+
+/// Grid tile for an artist: circular album-derived artwork with the name below.
+private struct ArtistTile: View {
+    let artist: Artist
+    let repTrack: Track?
+
+    var body: some View {
+        VStack(spacing: Aether.Spacing.xs) {
+            AetherArtwork(track: repTrack, circular: true, maxPixelSize: 256)
+                .aspectRatio(1, contentMode: .fit)
+            Text(artist.name)
+                .font(.subheadline)
+                .foregroundStyle(Aether.Color.textPrimary)
+                .lineLimit(1)
+                .multilineTextAlignment(.center)
         }
     }
 }

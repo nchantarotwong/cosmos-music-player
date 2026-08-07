@@ -36,7 +36,9 @@ struct ContentView: View {
     }
 
     private var mainContent: some View {
-        LibraryView(
+        // Aether "Shelves" Home replaces the old category-list LibraryView.
+        // LibraryView and its subscreens are retained as navigation destinations.
+        AetherHomeView(
             tracks: tracks,
             showTutorial: $showTutorial,
             showPlaylistManagement: $showPlaylistManagement,

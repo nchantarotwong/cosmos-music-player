@@ -62,6 +62,7 @@ enum DSDPlaybackMode: String, CaseIterable, Codable {
 
 enum HomeSectionId: String, Codable, CaseIterable {
     case allSongs
+    case recentlyAdded
     case likedSongs
     case playlists
     case artists
@@ -71,6 +72,7 @@ enum HomeSectionId: String, Codable, CaseIterable {
     var displayName: String {
         switch self {
         case .allSongs: return Localized.allSongs
+        case .recentlyAdded: return Localized.recentlyAdded
         case .likedSongs: return Localized.likedSongs
         case .playlists: return Localized.playlists
         case .artists: return Localized.artists
@@ -82,6 +84,7 @@ enum HomeSectionId: String, Codable, CaseIterable {
     var icon: String {
         switch self {
         case .allSongs: return "music.note"
+        case .recentlyAdded: return "clock.badge.checkmark"
         case .likedSongs: return "heart.fill"
         case .playlists: return "music.note.list"
         case .artists: return "person.2.fill"
@@ -97,6 +100,7 @@ struct HomeSectionItem: Codable, Identifiable, Equatable {
 
     static let defaultSections: [HomeSectionItem] = [
         HomeSectionItem(id: .allSongs, isVisible: true),
+        HomeSectionItem(id: .recentlyAdded, isVisible: true),
         HomeSectionItem(id: .likedSongs, isVisible: true),
         HomeSectionItem(id: .playlists, isVisible: true),
         HomeSectionItem(id: .artists, isVisible: true),
