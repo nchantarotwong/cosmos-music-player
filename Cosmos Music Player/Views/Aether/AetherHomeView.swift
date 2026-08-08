@@ -281,7 +281,7 @@ struct AetherHomeView: View {
             for url in urls {
                 if let scheme = url.scheme?.lowercased(), ["http", "https", "ftp", "sftp"].contains(scheme) { continue }
                 guard url.startAccessingSecurityScopedResource() else { continue }
-                _ = await ScannedFoldersManager.shared.addFolder(url)
+                _ = ScannedFoldersManager.shared.addFolder(url)
                 imported += await LibraryIndexer.shared.importMusicFromFolder(url, allowExcludedReimport: true)
                 url.stopAccessingSecurityScopedResource()
             }

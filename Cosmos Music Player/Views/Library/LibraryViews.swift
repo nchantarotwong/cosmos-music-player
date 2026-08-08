@@ -253,7 +253,7 @@ struct LibraryView: View {
 
                 // Persist the folder so it is re-scanned on future launches,
                 // then import whatever music it currently contains.
-                if await ScannedFoldersManager.shared.addFolder(url) {
+                if ScannedFoldersManager.shared.addFolder(url) {
                     addedFolders += 1
                 }
                 importedCount += await libraryIndexer.importMusicFromFolder(url, allowExcludedReimport: true)
