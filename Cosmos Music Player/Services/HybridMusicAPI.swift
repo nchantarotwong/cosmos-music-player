@@ -152,8 +152,13 @@ class HybridMusicAPIService: ObservableObject, @unchecked Sendable {
     // MARK: - Public API
     
     func searchArtist(name: String) async throws -> UnifiedArtist? {
+        // Both providers are optional; if neither is configured there is no
+        // enrichment to fetch, so skip without touching the network.
+        guard EnvironmentLoader.shared.isSpotifyConfigured || EnvironmentLoader.shared.isDiscogsConfigured else {
+            return nil
+        }
         print("🎵 Hybrid: Searching for artist: \(name)")
-        
+
         let cachedArtist = getCachedArtist(name: name)
         if let cached = cachedArtist, !cached.isExpired {
             if cached.unifiedArtist.source == .spotify {

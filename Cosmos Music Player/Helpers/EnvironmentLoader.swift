@@ -103,33 +103,29 @@ class EnvironmentLoader: @unchecked Sendable {
 // MARK: - API Key Helpers
 
 extension EnvironmentLoader {
+    // Artist-info API keys are OPTIONAL. They power Discogs/Spotify enrichment
+    // only; the app is offline-first and must remain fully usable without them.
+    // Missing keys therefore return "" (never crash) and callers should gate on
+    // `isSpotifyConfigured` / `isDiscogsConfigured` to skip the feature cleanly.
+
+    private func nonEmpty(_ key: String) -> String? {
+        guard let value = getValue(for: key), !value.isEmpty else { return nil }
+        return value
+    }
+
     // Spotify API Keys
-    var spotifyClientId: String {
-        guard let clientId = getValue(for: "SPOTIFY_CLIENT_ID"), !clientId.isEmpty else {
-            fatalError("❌ SPOTIFY_CLIENT_ID not found in environment variables. Please add it to your .env file.")
-        }
-        return clientId
+    var isSpotifyConfigured: Bool {
+        nonEmpty("SPOTIFY_CLIENT_ID") != nil && nonEmpty("SPOTIFY_CLIENT_SECRET") != nil
     }
-    
-    var spotifyClientSecret: String {
-        guard let clientSecret = getValue(for: "SPOTIFY_CLIENT_SECRET"), !clientSecret.isEmpty else {
-            fatalError("❌ SPOTIFY_CLIENT_SECRET not found in environment variables. Please add it to your .env file.")
-        }
-        return clientSecret
-    }
-    
+
+    var spotifyClientId: String { nonEmpty("SPOTIFY_CLIENT_ID") ?? "" }
+    var spotifyClientSecret: String { nonEmpty("SPOTIFY_CLIENT_SECRET") ?? "" }
+
     // Discogs API Keys
-    var discogsConsumerKey: String {
-        guard let consumerKey = getValue(for: "DISCOGS_CONSUMER_KEY"), !consumerKey.isEmpty else {
-            fatalError("❌ DISCOGS_CONSUMER_KEY not found in environment variables. Please add it to your .env file.")
-        }
-        return consumerKey
+    var isDiscogsConfigured: Bool {
+        nonEmpty("DISCOGS_CONSUMER_KEY") != nil && nonEmpty("DISCOGS_CONSUMER_SECRET") != nil
     }
-    
-    var discogsConsumerSecret: String {
-        guard let consumerSecret = getValue(for: "DISCOGS_CONSUMER_SECRET"), !consumerSecret.isEmpty else {
-            fatalError("❌ DISCOGS_CONSUMER_SECRET not found in environment variables. Please add it to your .env file.")
-        }
-        return consumerSecret
-    }
+
+    var discogsConsumerKey: String { nonEmpty("DISCOGS_CONSUMER_KEY") ?? "" }
+    var discogsConsumerSecret: String { nonEmpty("DISCOGS_CONSUMER_SECRET") ?? "" }
 }

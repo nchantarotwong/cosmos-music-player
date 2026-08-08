@@ -73,6 +73,9 @@ struct AetherHomeView: View {
             .aetherBackground()
             .navigationBarHidden(true)
         }
+        // Aether is dark by default; force dark for Home and every screen pushed
+        // from it so pushed destinations don't flash the light system appearance.
+        .preferredColorScheme(.dark)
         .task { reload() }
         .onChange(of: tracks.count) { _, _ in reload() }
         .sheet(isPresented: $showFilePicker) {

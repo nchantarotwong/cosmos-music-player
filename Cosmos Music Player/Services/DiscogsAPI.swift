@@ -160,8 +160,13 @@ class DiscogsAPIService: ObservableObject, @unchecked Sendable {
     // MARK: - Public API
     
     func searchArtist(name: String) async throws -> DiscogsArtist? {
+        // Artist enrichment is optional: skip entirely (no network) when the
+        // Discogs keys aren't configured.
+        guard EnvironmentLoader.shared.isDiscogsConfigured else {
+            return nil
+        }
         print("🎵 Discogs: Searching for artist: \(name)")
-        
+
         // Check cache first
         if let cached = getCachedArtist(name: name), !cached.isExpired {
             print("✅ Discogs: Found cached artist: \(name)")

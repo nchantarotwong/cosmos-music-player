@@ -15,7 +15,8 @@ struct ContentView: View {
     var body: some View {
         mainContent
             .background(.clear)
-            .preferredColorScheme(settings.forceDarkMode ? .dark : nil)
+            // Aether is dark by default across the whole app.
+            .preferredColorScheme(.dark)
             .accentColor(settings.backgroundColorChoice.color)
             .modifier(LifecycleModifier(
                 appCoordinator: appCoordinator,

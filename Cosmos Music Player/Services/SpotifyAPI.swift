@@ -174,8 +174,13 @@ class SpotifyAPIService: ObservableObject, @unchecked Sendable {
     // MARK: - Public API
     
     func searchArtist(name: String) async throws -> SpotifyArtist? {
+        // Artist enrichment is optional: skip entirely (no network) when the
+        // Spotify keys aren't configured.
+        guard EnvironmentLoader.shared.isSpotifyConfigured else {
+            return nil
+        }
         print("🎵 Spotify: Searching for artist: \(name)")
-        
+
         // Check cache first
         if let cached = getCachedArtist(name: name), !cached.isExpired {
             print("✅ Spotify: Found cached artist: \(name)")
