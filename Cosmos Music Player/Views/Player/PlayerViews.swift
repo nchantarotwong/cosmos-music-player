@@ -111,11 +111,47 @@ struct PlayerView: View {
     
     var body: some View {
         ZStack {
-            ScreenSpecificBackgroundView(screen: .player)
+            // Aether Now Playing sits on the flat near-black base; a heavily
+            // blurred copy of the current artwork bleeds it to the edges so the
+            // screen feels fullscreen and artwork-first.
+            Aether.Color.background.ignoresSafeArea()
+            ambientArtworkBackground
             mainContent
         }
         // Cap Dynamic Type so large accessibility sizes don't overflow the player layout
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    /// A full-bleed, heavily blurred rendition of the current cover, faded
+    /// into the Aether base so metadata and controls stay legible. Presentation
+    /// only — it reads the already-loaded `currentArtwork`, no new state.
+    private var ambientArtworkBackground: some View {
+        GeometryReader { geo in
+            Group {
+                if let artwork = currentArtwork {
+                    Image(uiImage: artwork)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .blur(radius: 70, opaque: true)
+                        .overlay(
+                            LinearGradient(
+                                colors: [
+                                    Aether.Color.background.opacity(0.35),
+                                    Aether.Color.background.opacity(0.72),
+                                    Aether.Color.background
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .overlay(Aether.Color.background.opacity(0.35))
+                        .clipped()
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.45), value: playerEngine.currentTrack?.stableId)
     }
 
     private var mainContent: some View {
@@ -173,18 +209,113 @@ struct PlayerView: View {
 
     private var contentView: some View {
         VStack(spacing: UIScreen.main.scale < UIScreen.main.nativeScale ? 16 : 20) {
+            topBar
             if let currentTrack = playerEngine.currentTrack {
                 VStack(spacing: UIScreen.main.scale < UIScreen.main.nativeScale ? 20 : 25) {
                     artworkSection
                     titleAndArtistSection(track: currentTrack)
                 }
 
-                progressBarSection
+                VStack(spacing: 10) {
+                    progressBarSection
+                    formatInfoLine(track: currentTrack)
+                }
                 controlsSection
             } else {
+                Spacer()
                 emptyStateView
+                Spacer()
             }
         }
+    }
+
+    // MARK: - Top Bar
+
+    private var topBar: some View {
+        HStack {
+            Button {
+                NotificationCenter.default.post(name: NSNotification.Name("MinimizePlayer"), object: nil)
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Aether.Color.textSecondary)
+                    .frame(width: 44, height: 44, alignment: .leading)
+            }
+
+            Spacer()
+
+            VStack(spacing: 2) {
+                Text(Localized.playingFrom.uppercased())
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .tracking(1.2)
+                    .foregroundColor(Aether.Color.textTertiary)
+                Text(playingFromSource)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(Aether.Color.primary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            Menu {
+                Button {
+                    showPlaylistDialog = true
+                } label: {
+                    Label(Localized.addToPlaylist, systemImage: "plus.circle")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Aether.Color.textSecondary)
+                    .frame(width: 44, height: 44, alignment: .trailing)
+            }
+            .disabled(playerEngine.currentTrack == nil)
+        }
+    }
+
+    /// Non-authoritative source label. The player does not track a playback
+    /// "source" context, so we surface the current track's album — honest for
+    /// the common album/song-tap case — and fall back to the app name.
+    private var playingFromSource: String {
+        if let albumId = playerEngine.currentTrack?.albumId,
+           let album = try? DatabaseManager.shared.read({ db in
+               try Album.fetchOne(db, key: albumId)
+           }) {
+            return album.title
+        }
+        return "Aether"
+    }
+
+    // MARK: - Format Info
+
+    private func formatInfoLine(track: Track) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "waveform")
+                .font(.system(size: 11))
+            Text(formatDescription(for: track))
+                .font(.caption)
+        }
+        .foregroundColor(Aether.Color.textTertiary)
+    }
+
+    /// Builds a compact quality string, e.g. "FLAC 24-bit / 96 kHz" for
+    /// lossless or "MP3 / 44.1 kHz" for lossy tracks, from stored metadata.
+    private func formatDescription(for track: Track) -> String {
+        let codec = URL(fileURLWithPath: track.path).pathExtension.uppercased()
+        var head = codec
+        if let bitDepth = track.bitDepth, bitDepth > 0 {
+            head = head.isEmpty ? "\(bitDepth)-bit" : "\(head) \(bitDepth)-bit"
+        }
+        if let sampleRate = track.sampleRate, sampleRate > 0 {
+            let khz = Double(sampleRate) / 1000.0
+            let khzStr = khz.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", khz)
+                : String(format: "%.1f", khz)
+            head = head.isEmpty ? "\(khzStr) kHz" : "\(head) / \(khzStr) kHz"
+        }
+        return head
     }
 
     private var playlistSheet: some View {
@@ -209,7 +340,7 @@ struct PlayerView: View {
 
     private var artworkSection: some View {
         GeometryReader { geometry in
-            let maxWidth = min(geometry.size.width - 40, 360)
+            let maxWidth = min(geometry.size.width - 24, 420)
             let artworkSize = min(maxWidth, geometry.size.height)
             let gestureWidth = max(geometry.size.width, 1)
             let pageDistance = artworkSize + 18
@@ -259,7 +390,7 @@ struct PlayerView: View {
                 )
             )
         }
-        .frame(height: min(360, UIScreen.main.bounds.width - 80))
+        .frame(height: min(420, UIScreen.main.bounds.width - 48))
         .clipped()
     }
 
@@ -442,10 +573,7 @@ struct PlayerView: View {
 
             Spacer()
 
-            HStack(spacing: UIScreen.main.scale < UIScreen.main.nativeScale ? 16 : 20) {
-                likeButton
-                addToPlaylistButton
-            }
+            likeButton
         }
         .padding(.horizontal, 8)
     }
@@ -466,7 +594,7 @@ struct PlayerView: View {
                         .lineLimit(2)
                         .minimumScaleFactor(0.7)
                         .multilineTextAlignment(.leading)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Aether.Color.textPrimary)
                 }
                 .buttonStyle(PlainButtonStyle())
             } else {
@@ -476,6 +604,7 @@ struct PlayerView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.7)
                     .multilineTextAlignment(.leading)
+                    .foregroundColor(Aether.Color.textPrimary)
             }
         }
     }
@@ -492,7 +621,8 @@ struct PlayerView: View {
                 }) {
                     Text((try? DatabaseManager.shared.getArtistDisplayName(forTrackStableId: track.stableId, fallbackArtistId: track.artistId)) ?? artist.name)
                         .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .caption : .subheadline)
-                        .foregroundColor(.secondary)
+                        .fontWeight(.medium)
+                        .foregroundColor(Aether.Color.primary)
                         .lineLimit(1)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -506,17 +636,7 @@ struct PlayerView: View {
         }) {
             Image(systemName: isFavorite ? "heart.fill" : "heart")
                 .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title3 : .title2)
-                .foregroundColor(isFavorite ? .red : .primary)
-        }
-    }
-
-    private var addToPlaylistButton: some View {
-        Button(action: {
-            showPlaylistDialog = true
-        }) {
-            Image(systemName: "plus.circle")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title3 : .title2)
-                .foregroundColor(.primary)
+                .foregroundColor(isFavorite ? Aether.Color.primary : Aether.Color.textSecondary)
         }
     }
 
@@ -525,7 +645,7 @@ struct PlayerView: View {
     private var progressBarSection: some View {
         PlayerProgressSection(
             duration: playerEngine.duration,
-            accentColor: settings.backgroundColorChoice.color,
+            accentColor: Aether.Color.primary,
             onSeek: { newTime in
                 Task {
                     await playerEngine.seek(to: newTime)
@@ -544,29 +664,24 @@ struct PlayerView: View {
     }
 
     private var playbackControlsView: some View {
-        HStack(spacing: min(35, UIScreen.main.bounds.width * 0.08)) {
-            shuffleButton
-            previousButton
-            playPauseButton
-            nextButton
-            loopButton
+        HStack(spacing: 0) {
+            shuffleButton.frame(maxWidth: .infinity)
+            previousButton.frame(maxWidth: .infinity)
+            playPauseButton.frame(maxWidth: .infinity)
+            nextButton.frame(maxWidth: .infinity)
+            loopButton.frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, min(21, UIScreen.main.bounds.width * 0.055))
-        .padding(.vertical, 21)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 25))
-        .overlay(
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
     }
 
     private var shuffleButton: some View {
         Button(action: {
             playerEngine.toggleShuffle()
         }) {
-            Image(systemName: playerEngine.isShuffled ? "shuffle.circle.fill" : "shuffle.circle")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
-                .foregroundColor(playerEngine.isShuffled ? .accentColor : .primary)
+            Image(systemName: "shuffle")
+                .font(.title3)
+                .foregroundColor(playerEngine.isShuffled ? Aether.Color.primary : Aether.Color.textSecondary)
         }
     }
 
@@ -577,7 +692,8 @@ struct PlayerView: View {
             }
         }) {
             Image(systemName: "backward.fill")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
+                .font(.title2)
+                .foregroundColor(Aether.Color.textPrimary)
         }
     }
 
@@ -589,8 +705,14 @@ struct PlayerView: View {
                 playerEngine.play()
             }
         }) {
-            Image(systemName: playerEngine.isPlaying ? "pause.fill" : "play.fill")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title : .largeTitle)
+            ZStack {
+                Circle()
+                    .stroke(Aether.Color.primary, lineWidth: 2)
+                    .frame(width: 72, height: 72)
+                Image(systemName: playerEngine.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 26, weight: .medium))
+                    .foregroundColor(Aether.Color.textPrimary)
+            }
         }
     }
 
@@ -601,7 +723,8 @@ struct PlayerView: View {
             }
         }) {
             Image(systemName: "forward.fill")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
+                .font(.title2)
+                .foregroundColor(Aether.Color.textPrimary)
         }
     }
 
@@ -609,19 +732,13 @@ struct PlayerView: View {
         Button(action: {
             playerEngine.cycleLoopMode()
         }) {
-            Group {
-                if playerEngine.isLoopingSong {
-                    Image(systemName: "repeat.1.circle.fill")
-                        .foregroundColor(settings.backgroundColorChoice.color)
-                } else if playerEngine.isRepeating {
-                    Image(systemName: "repeat.circle.fill")
-                        .foregroundColor(settings.backgroundColorChoice.color)
-                } else {
-                    Image(systemName: "repeat.circle")
-                        .foregroundColor(.primary)
-                }
-            }
-            .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
+            Image(systemName: playerEngine.isLoopingSong ? "repeat.1" : "repeat")
+                .font(.title3)
+                .foregroundColor(
+                    (playerEngine.isLoopingSong || playerEngine.isRepeating)
+                        ? Aether.Color.primary
+                        : Aether.Color.textSecondary
+                )
         }
     }
 
@@ -631,7 +748,7 @@ struct PlayerView: View {
         // slot in which the sleep timer took priority - enabling it silently
         // hid the lyrics button. Each button fills the row evenly, so the
         // layout absorbs two, three or four of them.
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             queueButton
             if settings.showSleepTimerButton {
                 sleepTimerButton
@@ -641,7 +758,7 @@ struct PlayerView: View {
             }
             airPlayButton
         }
-        .padding(.horizontal, 5)
+        .padding(.horizontal, 24)
     }
 
     private var queueButton: some View {
@@ -649,17 +766,10 @@ struct PlayerView: View {
             showQueueSheet = true
         }) {
             Image(systemName: "list.bullet")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, minHeight: 30)
-                .padding(.vertical, 16)
+                .font(.title3)
+                .foregroundColor(Aether.Color.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: 44)
         }
-        .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
     }
 
     private var airPlayButton: some View {
@@ -667,17 +777,10 @@ struct PlayerView: View {
             showAirPlayPicker()
         }) {
             Image(systemName: "airplayaudio")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, minHeight: 25)
-                .padding(.vertical, 16)
+                .font(.title3)
+                .foregroundColor(Aether.Color.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: 44)
         }
-        .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
     }
 
     private var emptyStateView: some View {
@@ -703,8 +806,8 @@ struct PlayerView: View {
         }) {
             ZStack {
                 Image(systemName: "quote.bubble")
-                    .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
-                    .foregroundColor(.primary)
+                    .font(.title3)
+                    .foregroundColor(Aether.Color.textSecondary)
 
                 if isLoadingLyrics {
                     ProgressView()
@@ -712,15 +815,8 @@ struct PlayerView: View {
                         .offset(x: 15, y: -10)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 30)
-            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: 44)
         }
-        .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
     }
 
     private var sleepTimerButton: some View {
@@ -747,19 +843,12 @@ struct PlayerView: View {
             }
         } label: {
             Image(systemName: sleepTimerEndDate == nil ? "timer" : "timer.circle.fill")
-                .font(UIScreen.main.scale < UIScreen.main.nativeScale ? .title2 : .title)
-                .foregroundColor(sleepTimerEndDate == nil ? .primary : settings.backgroundColorChoice.color)
-                .frame(maxWidth: .infinity, minHeight: 30)
-                .padding(.vertical, 16)
+                .font(.title3)
+                .foregroundColor(sleepTimerEndDate == nil ? Aether.Color.textSecondary : Aether.Color.primary)
+                .frame(maxWidth: .infinity, minHeight: 44)
         }
         .menuOrder(.fixed)
-        .frame(maxWidth: .infinity)
         .accessibilityLabel(Localized.sleepTimer)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-        )
     }
 
     private func startSleepTimer(minutes: Int) {
@@ -1170,12 +1259,11 @@ struct MiniPlayerView: View {
                         isExpanded = true
                     }
                 }
-                .sheet(isPresented: $isExpanded) {
-                    // Full screen player as sheet
+                .fullScreenCover(isPresented: $isExpanded) {
+                    // Full-screen so the ambient blurred artwork bleeds to every
+                    // edge. Dismissal is via the chevron / artwork tap, which
+                    // post "MinimizePlayer".
                     PlayerView()
-                        .presentationDetents([.large])
-                        .presentationDragIndicator(.visible)
-                        .interactiveDismissDisabled(false)
                         .accentColor(settings.backgroundColorChoice.color)
                 }
                 .task(id: playerEngine.currentTrack?.stableId) {

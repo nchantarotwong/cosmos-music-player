@@ -72,6 +72,7 @@
 "playing_queue" = "Очередь воспроизведения";
 "no_songs_in_queue" = "Очередь пуста";
 "no_track_selected" = "Трек не выбран";
+"playing_from" = "Воспроизведение из";
 
 /* Search */
 "search_your_music_library" = "Поиск по медиатеке";

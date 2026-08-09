@@ -72,6 +72,7 @@
 "playing_queue" = "Playing Queue";
 "no_songs_in_queue" = "No songs in queue";
 "no_track_selected" = "No track selected";
+"playing_from" = "Playing From";
 
 /* Search */
 "search_your_music_library" = "Search your music library";

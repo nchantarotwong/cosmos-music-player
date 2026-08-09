@@ -99,7 +99,8 @@ struct Localized {
     static let playingQueue = "playing_queue".localized
     static let noSongsInQueue = "no_songs_in_queue".localized
     static let noTrackSelected = "no_track_selected".localized
-    
+    static let playingFrom = "playing_from".localized
+
     // MARK: - Search
     static let searchYourMusicLibrary = "search_your_music_library".localized
     static let findSongsArtistsAlbumsPlaylists = "find_songs_artists_albums_playlists".localized
