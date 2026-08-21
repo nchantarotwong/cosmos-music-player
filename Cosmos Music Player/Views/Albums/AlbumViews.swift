@@ -166,32 +166,70 @@ struct AlbumDetailScreen: View {
         }
         return Localized.unknownArtist
     }
-    
+
+    /// Responsive hero cover edge — large but leaves a comfortable margin.
+    private var heroArtSize: CGFloat {
+        min(UIScreen.main.bounds.width - 96, 320)
+    }
+
+    /// A soft, fixed ambient glow derived from the album cover, fading into the
+    /// Aether canvas — the same artwork-first language as the Now Playing screen.
+    private var albumAmbientBackground: some View {
+        Group {
+            if let image = artworkImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 460)
+                    .clipped()
+                    .blur(radius: 60, opaque: true)
+                    .overlay(
+                        LinearGradient(
+                            colors: [
+                                Aether.Color.background.opacity(0.10),
+                                Aether.Color.background.opacity(0.55),
+                                Aether.Color.background
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .opacity(0.9)
+            }
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             ScreenSpecificBackgroundView(screen: .albumDetail)
-            
+            albumAmbientBackground
+
             ScrollView {
                 VStack(spacing: 24) {
                     // Artwork + info
                     VStack(spacing: 16) {
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: Aether.Radius.featureCard)
                             .fill(Aether.Color.surfaceElevated)
-                            .frame(width: 250, height: 250)
+                            .frame(width: heroArtSize, height: heroArtSize)
                             .overlay {
                                 if let image = artworkImage {
                                     Image(uiImage: image)
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
-                                        .frame(width: 250, height: 250)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .frame(width: heroArtSize, height: heroArtSize)
+                                        .clipShape(RoundedRectangle(cornerRadius: Aether.Radius.featureCard))
                                 } else {
                                     Image(systemName: "music.note")
                                         .font(.system(size: 50))
                                         .foregroundColor(Aether.Color.textSecondary)
                                 }
                             }
-                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                            .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
+                            .padding(.top, 8)
                         
                         VStack(spacing: 8) {
                             Text(album.title)
