@@ -111,14 +111,14 @@ struct ArtistListView: View {
             VStack(spacing: 16) {
                 Image(systemName: "person.2")
                     .font(.system(size: 40))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                 
                 Text("No artists found")
                     .font(.headline)
                 
                 Text("Artists will appear here once you add music to your library")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -136,7 +136,7 @@ struct ArtistListView: View {
                         
                         Text("Artist")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
                 }
                 .frame(height: 66)
@@ -270,7 +270,7 @@ struct ArtistDetailScreen: View {
         VStack(spacing: 16) {
             ZStack {
                 Rectangle()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Aether.Color.surfaceElevated)
                     .frame(width: geometry.size.width, height: imageHeight)
                     .clipped()
                     .overlay {
@@ -283,7 +283,7 @@ struct ArtistDetailScreen: View {
                         } else {
                             Image(systemName: "person.circle")
                                 .font(.system(size: 60))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                     }
                     .overlay(
@@ -375,7 +375,7 @@ struct ArtistDetailScreen: View {
                 // Spotify content with attribution
                 Text(unifiedArtist.profile)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .lineLimit(showFullProfile ? nil : 3)
                     .onTapGesture {
                         withAnimation(.easeInOut(duration: 0.3)) { showFullProfile.toggle() }
@@ -386,7 +386,7 @@ struct ArtistDetailScreen: View {
                         HStack(spacing: 4) {
                             Text(Localized.dataProvidedBy("Spotify"))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                             
                             if let spotifyArtist = unifiedArtist.spotifyArtist,
                                let spotifyURL = spotifyArtist.externalUrls.spotify {
@@ -424,7 +424,7 @@ struct ArtistDetailScreen: View {
                 // Discogs or other source content
                 Text(unifiedArtist.profile)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .lineLimit(showFullProfile ? nil : 3)
                     .onTapGesture {
                         withAnimation(.easeInOut(duration: 0.3)) { showFullProfile.toggle() }
@@ -434,7 +434,7 @@ struct ArtistDetailScreen: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(Localized.dataProvidedBy(unifiedArtist.source.rawValue.capitalized))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                         
                         // Show "Wrong artist?" button in expanded profile
                         Button(action: {
@@ -494,7 +494,7 @@ struct ArtistDetailScreen: View {
                 Text(Localized.songs).font(.title3).fontWeight(.bold)
                 Spacer()
                 Text("\(artistTracks.count) song\(artistTracks.count == 1 ? "" : "s")")
-                    .font(.body).foregroundColor(.secondary)
+                    .font(.body).foregroundColor(Aether.Color.textSecondary)
             }
             .padding(.horizontal)
             .padding(.bottom, 12)
@@ -541,7 +541,7 @@ struct ArtistDetailScreen: View {
                 Text(Localized.albums).font(.title3).fontWeight(.bold)
                 Spacer()
                 Text("\(artistAlbums.count) album\(artistAlbums.count == 1 ? "" : "s")")
-                    .font(.body).foregroundColor(.secondary)
+                    .font(.body).foregroundColor(Aether.Color.textSecondary)
             }
             .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -697,7 +697,7 @@ struct ArtistTrackRowView: View {
             // Album artwork thumbnail
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Aether.Color.surfaceElevated)
                     .frame(width: 60, height: 60)
                 
                 if let image = artworkImage {
@@ -709,7 +709,7 @@ struct ArtistTrackRowView: View {
                 } else {
                     Image(systemName: "music.note")
                         .font(.title2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
             }
             
@@ -722,7 +722,7 @@ struct ArtistTrackRowView: View {
                 if let duration = track.durationMs {
                     Text(formatDuration(duration))
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .lineLimit(1)
                 }
             }
@@ -742,7 +742,7 @@ struct ArtistTrackRowView: View {
                             Image(systemName: isFavorite ? "heart.slash" : "heart")
                                 .foregroundColor(isFavorite ? .red : .primary)
                             Text(isFavorite ? Localized.removeFromLikedSongs : Localized.addToLikedSongs)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Aether.Color.textPrimary)
                         }
                     }
                     
@@ -770,7 +770,7 @@ struct ArtistTrackRowView: View {
                     .foregroundColor(.red)
             } label: {
                 Image(systemName: "ellipsis")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .frame(width: 30, height: 44)
                     .contentShape(Rectangle())
             }
@@ -877,7 +877,7 @@ struct ArtistAlbumCardView: View {
     var body: some View {
         VStack(spacing: 8) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.2))
+                .fill(Aether.Color.surfaceElevated)
                 .frame(width: 120, height: 120)
                 .overlay {
                     if let image = artworkImage {
@@ -889,7 +889,7 @@ struct ArtistAlbumCardView: View {
                     } else {
                         Image(systemName: "music.note")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
                 }
             
@@ -900,7 +900,7 @@ struct ArtistAlbumCardView: View {
                 .multilineTextAlignment(.center)
                 .frame(width: 120)
                 .frame(minHeight: 32) // Min height for 2 lines alignment
-                .foregroundColor(.primary)
+                .foregroundColor(Aether.Color.textPrimary)
         }
         .onAppear {
             loadAlbumArtwork()

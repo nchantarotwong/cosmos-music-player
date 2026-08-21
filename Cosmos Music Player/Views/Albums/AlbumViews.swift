@@ -70,11 +70,11 @@ private struct EmptyAlbumsView: View {
         VStack(spacing: 16) {
             Image(systemName: "opticaldisc")
                 .font(.system(size: 40))
-                .foregroundColor(.secondary)
+                .foregroundColor(Aether.Color.textSecondary)
             Text(Localized.noAlbumsFound).font(.headline)
             Text(Localized.albumsWillAppear)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Aether.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
         }
@@ -176,7 +176,7 @@ struct AlbumDetailScreen: View {
                     // Artwork + info
                     VStack(spacing: 16) {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.gray.opacity(0.2))
+                            .fill(Aether.Color.surfaceElevated)
                             .frame(width: 250, height: 250)
                             .overlay {
                                 if let image = artworkImage {
@@ -188,7 +188,7 @@ struct AlbumDetailScreen: View {
                                 } else {
                                     Image(systemName: "music.note")
                                         .font(.system(size: 50))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Aether.Color.textSecondary)
                                 }
                             }
                             .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
@@ -204,7 +204,7 @@ struct AlbumDetailScreen: View {
                             } label: {
                                 Text(albumArtist)
                                     .font(.title3)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Aether.Color.textSecondary)
                                     .multilineTextAlignment(.center)
                             }
                             .buttonStyle(.plain)
@@ -267,7 +267,7 @@ struct AlbumDetailScreen: View {
                             Spacer()
                             Text(Localized.songsCount(filteredAlbumTracks.count))
                                 .font(.body)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 12)
@@ -279,7 +279,7 @@ struct AlbumDetailScreen: View {
                                     HStack {
                                         Text("Disc \(disc.discNumber)")
                                             .font(.headline)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Aether.Color.textSecondary)
                                         Spacer()
                                     }
                                     .padding(.horizontal)
@@ -433,7 +433,7 @@ struct AlbumTrackRowView: View {
                 Text("\(trackNumber)")
                     .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .frame(width: 22, alignment: .leading)
                 
                 // Track info
@@ -441,7 +441,7 @@ struct AlbumTrackRowView: View {
                     Text(track.title)
                         .font(.body)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Aether.Color.textPrimary)
                         .lineLimit(1)
                         .multilineTextAlignment(.leading)
                     
@@ -450,19 +450,19 @@ struct AlbumTrackRowView: View {
                         if let artistName, !artistName.isEmpty {
                             Text(artistName)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                             
                             if track.durationMs != nil {
                                 Text(" • ")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Aether.Color.textSecondary)
                             }
                         }
                         
                         if let duration = track.durationMs {
                             Text(formatDuration(duration))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                     }
                 }
@@ -490,7 +490,7 @@ struct AlbumTrackRowView: View {
                             Image(systemName: isFavorite ? "heart.slash" : "heart")
                                 .foregroundColor(isFavorite ? .red : .primary)
                             Text(isFavorite ? Localized.removeFromLikedSongs : Localized.addToLikedSongs)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Aether.Color.textPrimary)
                         }
                     }
                     
@@ -518,7 +518,7 @@ struct AlbumTrackRowView: View {
                     .foregroundColor(.red)
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .frame(width: 24, height: 30)
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -596,7 +596,7 @@ struct ArtistDetailScreenWrapper: View {
                 VStack(spacing: 16) {
                     ProgressView()
                     Text(Localized.loadingArtist)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }

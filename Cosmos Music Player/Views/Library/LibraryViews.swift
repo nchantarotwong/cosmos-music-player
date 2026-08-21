@@ -445,7 +445,7 @@ struct LibraryView: View {
 
                                     Text(Localized.library)
                                         .responsiveLibraryTitleFont()
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Aether.Color.textPrimary)
                                 }
 
                                 Spacer()
@@ -664,7 +664,7 @@ struct LibraryView: View {
                                 .font(.system(size: 16, weight: .medium))
                             Text(syncToastMessage)
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Aether.Color.textPrimary)
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
@@ -727,7 +727,7 @@ struct LibrarySectionRowView: View {
             if settings.minimalistIcons {
                 Image(systemName: icon)
                     .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Aether.Color.textPrimary)
                     .frame(width: 60, height: 60)
             } else {
                 ZStack {
@@ -745,11 +745,11 @@ struct LibrarySectionRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .responsiveSectionTitleFont()
-                    .foregroundColor(.primary)
+                    .foregroundColor(Aether.Color.textPrimary)
 
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
             }
 
             Spacer()
@@ -757,7 +757,7 @@ struct LibrarySectionRowView: View {
             // Chevron
             Image(systemName: "chevron.right")
                 .font(.body)
-                .foregroundColor(.secondary)
+                .foregroundColor(Aether.Color.textSecondary)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -1257,9 +1257,9 @@ struct TrackListContentView: View {
     var body: some View {
         if tracks.isEmpty {
             VStack(spacing: 16) {
-                Image(systemName: "music.note").font(.system(size: 40)).foregroundColor(.secondary)
+                Image(systemName: "music.note").font(.system(size: 40)).foregroundColor(Aether.Color.textSecondary)
                 Text(Localized.noSongsFound).font(.headline)
-                Text(Localized.yourMusicWillAppearHere).font(.subheadline).foregroundColor(.secondary)
+                Text(Localized.yourMusicWillAppearHere).font(.subheadline).foregroundColor(Aether.Color.textSecondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
@@ -1385,21 +1385,21 @@ struct BulkPlaylistSelectionView: View {
 
                     Text(Localized.songsCountOnly(trackIds.count))
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
 
                 if playlists.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "music.note.list")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
 
                         Text(Localized.noPlaylistsYet)
                             .font(.headline)
 
                         Text(Localized.createFirstPlaylist)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -1413,7 +1413,7 @@ struct BulkPlaylistSelectionView: View {
                                         .foregroundColor(Aether.Color.primary)
 
                                     Text(playlist.title)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Aether.Color.textPrimary)
 
                                     Spacer()
 
@@ -1626,7 +1626,7 @@ struct SearchView: View {
                     HStack {
                         HStack {
                             Image(systemName: "magnifyingglass")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
 
                             TextField("Search your library", text: $searchText)
                                 .textFieldStyle(PlainTextFieldStyle())
@@ -1676,14 +1676,14 @@ struct SearchView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "magnifyingglass")
                                 .font(.system(size: 40))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
 
                             Text(Localized.searchYourMusicLibrary)
                                 .font(.headline)
 
                             Text(Localized.findSongsArtistsAlbumsPlaylists)
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1695,7 +1695,7 @@ struct SearchView: View {
 
                             Text("Searching...")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
@@ -1803,14 +1803,14 @@ struct SearchView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "magnifyingglass.circle")
                         .font(.system(size: 40))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
 
                     Text(Localized.noResultsFound)
                         .font(.headline)
 
                     Text(Localized.tryDifferentKeywords)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -2016,7 +2016,7 @@ struct SearchView: View {
                         }
                         .frame(width: 40, height: 40)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
-                        .background(Color(.systemGray5))
+                        .background(Aether.Color.surfaceElevated)
 
                         if isCurrentlyPlaying {
                             RoundedRectangle(cornerRadius: 6)
@@ -2059,7 +2059,7 @@ struct SearchView: View {
                     if let duration = track.durationMs {
                         Text(formatDuration(duration))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -2246,20 +2246,20 @@ struct SearchView: View {
                         Text(artist.name)
                             .font(.body)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Aether.Color.textPrimary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
 
                         Text(Localized.artist)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -2323,7 +2323,7 @@ struct SearchView: View {
                 VStack(spacing: 4) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(Color(.systemGray5))
+                            .fill(Aether.Color.surfaceElevated)
                             .frame(width: 80, height: 80)
 
                         if let image = artworkImage {
@@ -2335,7 +2335,7 @@ struct SearchView: View {
                         } else {
                             Image(systemName: "opticaldisc.fill")
                                 .font(.title3)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                     }
 
@@ -2345,7 +2345,7 @@ struct SearchView: View {
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .frame(width: 80)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Aether.Color.textPrimary)
                 }
                 .onAppear { loadArtwork() }
             }
@@ -2393,13 +2393,13 @@ struct SearchView: View {
                     }
                     .frame(width: 40, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .background(Color(.systemGray5))
+                    .background(Aether.Color.surfaceElevated)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(album.title)
                             .font(.body)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Aether.Color.textPrimary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
 
@@ -2407,12 +2407,12 @@ struct SearchView: View {
                             if let albumArtistName, !albumArtistName.isEmpty {
                                 Text(albumArtistName)
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Aether.Color.textSecondary)
                             }
 
                             Text("• \(Localized.album)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                         }
                     }
 
@@ -2420,11 +2420,11 @@ struct SearchView: View {
 
                     Text(Localized.songsCountOnly(albumTracks.count))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
 
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -2477,20 +2477,20 @@ struct SearchView: View {
                         Text(playlist.title)
                             .font(.body)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Aether.Color.textPrimary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
 
                         Text(Localized.playlist)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -2616,7 +2616,7 @@ struct ScannedFoldersView: View {
             List {
                 if manager.folders.isEmpty {
                     Text(NSLocalizedString("no_watched_folders", value: "No folders are being watched.", comment: ""))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 } else {
                     Section(footer: Text(NSLocalizedString("watched_folders_footer", value: "Watched folders are re-scanned for new music each time you sync. Removing a folder keeps songs already imported from it.", comment: ""))) {
                         ForEach(manager.folders) { folder in
@@ -2629,7 +2629,7 @@ struct ScannedFoldersView: View {
                                         .lineLimit(1)
                                     Text(folder.displayPath)
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Aether.Color.textSecondary)
                                         .lineLimit(1)
                                         .truncationMode(.middle)
                                 }

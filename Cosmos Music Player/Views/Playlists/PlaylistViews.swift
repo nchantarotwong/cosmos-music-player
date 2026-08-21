@@ -292,7 +292,7 @@ struct AIPlaylistSheet: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text(Localized.aiPlaylistDescription)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
 
                 TextField(Localized.aiPlaylistPlaceholder, text: $prompt, axis: .vertical)
                     .lineLimit(2...4)
@@ -394,7 +394,7 @@ struct NewPlaylistCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Aether.Color.surfaceElevated)
                     .aspectRatio(1, contentMode: .fit)
 
                 RoundedRectangle(cornerRadius: 12)
@@ -404,7 +404,7 @@ struct NewPlaylistCardView: View {
 
                 Image(systemName: "plus")
                     .font(.system(size: 40, weight: .light))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .contentShape(RoundedRectangle(cornerRadius: 12))
@@ -453,7 +453,7 @@ struct PlaylistCardView: View {
             // Artwork area
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Aether.Color.surfaceElevated)
                     .aspectRatio(1, contentMode: .fit)
 
                 // Edit mode overlay with buttons - always on top
@@ -544,7 +544,7 @@ struct PlaylistCardView: View {
                     // Default icon for empty playlist
                     Image(systemName: "music.note.list")
                         .font(.system(size: 40))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -558,7 +558,7 @@ struct PlaylistCardView: View {
 
                 Text(Localized.songsCount(allTracks.count))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
             }
         }
         .task {
@@ -586,11 +586,11 @@ struct PlaylistCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: index < 4 && allTracks.count >= 4 ? 6 : 12))
         } else if index < allTracks.count {
             RoundedRectangle(cornerRadius: index < 4 && allTracks.count >= 4 ? 6 : 12)
-                .fill(Color.gray.opacity(0.3))
+                .fill(Aether.Color.surfaceElevated)
                 .frame(width: size, height: size)
                 .overlay(
                     Image(systemName: "music.note")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .font(.system(size: size != nil ? size!/4 : 40))
                 )
         }
@@ -790,7 +790,7 @@ struct PlaylistDetailScreen: View {
                         // Four-song grid artwork
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.2))
+                                .fill(Aether.Color.surfaceElevated)
                                 .frame(width: 250, height: 250)
 
                             // Show custom cover if available, otherwise show auto-generated mashup
@@ -821,7 +821,7 @@ struct PlaylistDetailScreen: View {
                                 // Default icon for empty playlist
                                 Image(systemName: "music.note.list")
                                     .font(.system(size: 50))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Aether.Color.textSecondary)
                             }
 
                             // Edit mode: Show large centered photo icon
@@ -859,7 +859,7 @@ struct PlaylistDetailScreen: View {
 
                             Text(Localized.songsCount(tracks.count))
                                 .font(.title3)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -994,7 +994,7 @@ struct PlaylistDetailScreen: View {
                         HStack {
                             Text(Localized.songs)
                                 .font(.title3.weight(.bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Aether.Color.textPrimary)
                             Spacer()
 
                             // Sort menu button
@@ -1025,14 +1025,14 @@ struct PlaylistDetailScreen: View {
                         VStack(spacing: 16) {
                             Image(systemName: "music.note")
                                 .font(.system(size: 40))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
 
                             Text(Localized.noSongsFound)
                                 .font(.headline)
 
                             Text(Localized.yourMusicWillAppearHere)
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Aether.Color.textSecondary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -1103,11 +1103,11 @@ struct PlaylistDetailScreen: View {
                 .clipped()
         } else if index < tracks.count {
             RoundedRectangle(cornerRadius: 0)
-                .fill(Color.gray.opacity(0.3))
+                .fill(Aether.Color.surfaceElevated)
                 .frame(width: size, height: size)
                 .overlay(
                     Image(systemName: "music.note")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .font(.system(size: size/4))
                 )
         }
@@ -1306,7 +1306,7 @@ struct PlaylistTrackRowView: View {
                 // Album artwork thumbnail (matching TrackRowView exactly)
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.2))
+                        .fill(Aether.Color.surfaceElevated)
                         .frame(width: 60, height: 60)
 
                     if let image = artworkImage {
@@ -1318,7 +1318,7 @@ struct PlaylistTrackRowView: View {
                     } else {
                         Image(systemName: "music.note")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
 
                     // Stroke when playing (matching TrackRowView)
@@ -1421,7 +1421,7 @@ struct PlaylistTrackRowView: View {
                     .foregroundColor(.red)
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -1498,14 +1498,14 @@ struct PlaylistListView: View {
             VStack(spacing: 16) {
                 Image(systemName: "music.note.list")
                     .font(.system(size: 40))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
 
                 Text("No playlists yet")
                     .font(.headline)
 
                 Text("Create playlists by adding songs to them from the library")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Aether.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -1523,13 +1523,13 @@ struct PlaylistListView: View {
 
                         Text(Localized.playlist)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                         .font(.caption)
                 }
                 .frame(height: 66)
@@ -1590,21 +1590,21 @@ struct PlaylistSelectionView: View {
 
                     Text(track.title)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Aether.Color.textSecondary)
                 }
 
                 if playlists.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "music.note.list")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
 
                         Text(Localized.noPlaylistsYet)
                             .font(.headline)
 
                         Text(Localized.createFirstPlaylist)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -1620,7 +1620,7 @@ struct PlaylistSelectionView: View {
                                         .foregroundColor(Aether.Color.primary)
 
                                     Text(playlist.title)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Aether.Color.textPrimary)
 
                                     Spacer()
 
@@ -1787,14 +1787,14 @@ struct PlaylistManagementView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "music.note.list")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
 
                         Text(Localized.noPlaylistsYet)
                             .font(.headline)
 
                         Text(Localized.createPlaylistsInstruction)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Aether.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -1809,7 +1809,7 @@ struct PlaylistManagementView: View {
 
                                     Text(Localized.createdDate(formatDate(Date(timeIntervalSince1970: TimeInterval(playlist.createdAt)))))
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Aether.Color.textSecondary)
                                 }
 
                                 Spacer()
