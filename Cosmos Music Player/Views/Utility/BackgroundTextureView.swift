@@ -26,35 +26,14 @@ enum ScreenType {
 
 struct ScreenSpecificBackgroundView: View {
     let screen: ScreenType
-    
+
+    // Aether redesign: downstream screens sit on the single calm dark canvas and
+    // let artwork supply the color. The old per-screen colored halo designs
+    // (BackgroundTextureView) are retired for the redesign; the `screen` case is
+    // kept so existing call sites need no change.
     var body: some View {
-        ZStack {
-            // Each screen gets a unique fixed design, details match their parent screens
-            switch screen {
-            case .library:
-                BackgroundTextureView(design: .topLeftToCenterRight)
-            case .albums:
-                BackgroundTextureView(design: .bottomLeftToCenterRight)
-            case .albumDetail:
-                BackgroundTextureView(design: .bottomLeftToCenterRight) // Same as albums
-            case .artists:
-                BackgroundTextureView(design: .bottomRightToCenterLeft)
-            case .artistDetail:
-                BackgroundTextureView(design: .bottomRightToCenterLeft) // Same as artists
-            case .playlists:
-                BackgroundTextureView(design: .bottomLeftToCenterRight)
-            case .playlistDetail:
-                BackgroundTextureView(design: .bottomLeftToCenterRight) // Same as playlists
-            case .allSongs:
-                BackgroundTextureView(design: .topRightToCenterLeft) // Different from library
-            case .likedSongs:
-                BackgroundTextureView(design: .bottomRightToCenterLeft) // Different from library
-            case .player:
-                BackgroundTextureView(design: .subtleRadialGradient) // Minimalist player design
-            case .miniPlayer:
-                BackgroundTextureView(design: .topLeftToCenterRight) // Keep existing design for mini player
-            }
-        }
+        Aether.Color.background
+            .ignoresSafeArea()
     }
 }
 

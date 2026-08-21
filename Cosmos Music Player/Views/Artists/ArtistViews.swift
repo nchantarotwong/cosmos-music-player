@@ -329,9 +329,9 @@ struct ArtistDetailScreen: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color(UIColor.systemBackground).opacity(0.3),
-                            Color(UIColor.systemBackground).opacity(0.7),
-                            Color(UIColor.systemBackground)
+                            Aether.Color.background.opacity(0.3),
+                            Aether.Color.background.opacity(0.7),
+                            Aether.Color.background
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -400,7 +400,7 @@ struct ArtistDetailScreen: View {
                                     }
                                 }
                                 .font(.caption)
-                                .foregroundColor(settings.backgroundColorChoice.color)
+                                .foregroundColor(Aether.Color.primary)
                             }
                         }
                         
@@ -468,7 +468,7 @@ struct ArtistDetailScreen: View {
                     .padding(.horizontal, 8)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(settings.backgroundColorChoice.color)
+                    .background(Aether.Color.primary)
                     .cornerRadius(25)
             }
             Button {
@@ -478,11 +478,11 @@ struct ArtistDetailScreen: View {
             } label: {
                 HStack { Image(systemName: "shuffle"); Text(Localized.shuffle).lineLimit(1).minimumScaleFactor(0.6) }
                     .font(.title3).fontWeight(.semibold)
-                    .foregroundColor(settings.backgroundColorChoice.color)
+                    .foregroundColor(Aether.Color.primary)
                     .padding(.horizontal, 8)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(settings.backgroundColorChoice.color.opacity(0.1))
+                    .background(Aether.Color.primary.opacity(0.1))
                     .cornerRadius(25)
             }
         }
@@ -505,7 +505,7 @@ struct ArtistDetailScreen: View {
                         if isBulkMode {
                             TrackSelectionIndicator(
                                 isSelected: selectedTracks.contains(track.stableId),
-                                accentColor: settings.backgroundColorChoice.color,
+                                accentColor: Aether.Color.primary,
                                 onTap: { toggleSelection(track) }
                             )
                             .padding(.leading)
@@ -809,7 +809,7 @@ struct ArtistTrackRowView: View {
         }
         .sheet(isPresented: $showPlaylistDialog) {
             PlaylistSelectionView(track: track)
-                .accentColor(deleteSettings.backgroundColorChoice.color)
+                .accentColor(Aether.Color.primary)
         }
         .alert(Localized.deleteFile, isPresented: $showDeleteConfirmation) {
             Button(Localized.delete, role: .destructive) {

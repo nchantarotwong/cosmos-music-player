@@ -27,7 +27,7 @@
 "create_first_playlist" = "Создайте свой первый плейлист, чтобы начать";
 
 /* General UI strings */
-"all_songs" = "Все песни";
+"all_songs" = "Песни";
 "recently_added" = "Недавно добавленные";
 "liked_songs" = "Любимые песни";
 "add_songs" = "Открыть Файлы";
@@ -93,7 +93,7 @@
 "force_dark_mode" = "Принудительный тёмный режим";
 "version" = "Версия";
 "app_name" = "Название приложения";
-"cosmos_music_player" = "Cosmos Music Player";
+"cosmos_music_player" = "Aether";
 "github_repository" = "Репозиторий GitHub";
 "use_simple_icons" = "Использовать простые иконки без цветного фона в разделах медиатеки.";
 "override_system_appearance" = "Игнорировать системную тему и всегда использовать тёмный режим.";
@@ -131,7 +131,7 @@
 "icloud_connection_required" = "Требуется подключение к iCloud";
 
 /* Tutorial/Onboarding */
-"welcome_to_cosmos" = "Добро пожаловать в Cosmos";
+"welcome_to_cosmos" = "Добро пожаловать в Aether";
 "sign_in_to_apple_id" = "Войдите в Apple ID";
 "sign_in_message" = "Чтобы синхронизировать музыку и избранное между устройствами, убедитесь, что вы вошли в свой Apple ID.";
 "if_signed_in_continue" = "Если вы уже вошли, можете продолжить";

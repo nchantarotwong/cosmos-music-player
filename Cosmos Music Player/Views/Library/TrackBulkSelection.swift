@@ -35,7 +35,7 @@ struct TrackBulkActionsModifier: ViewModifier {
                 if isBulkMode {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(Localized.cancel) { exitBulkMode() }
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                     }
 
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -64,7 +64,7 @@ struct TrackBulkActionsModifier: ViewModifier {
                         } label: {
                             Image(systemName: "ellipsis.circle")
                                 .font(.title3)
-                                .foregroundColor(settings.backgroundColorChoice.color)
+                                .foregroundColor(Aether.Color.primary)
                                 .padding(4)
                                 .contentShape(Rectangle())
                         }
@@ -78,7 +78,7 @@ struct TrackBulkActionsModifier: ViewModifier {
                     trackIds: Array(selectedTracks),
                     onComplete: { exitBulkMode() }
                 )
-                .accentColor(settings.backgroundColorChoice.color)
+                .accentColor(Aether.Color.primary)
             }
             .alert(Localized.deleteFilesConfirmation, isPresented: $showDeleteConfirmation) {
                 Button(Localized.delete, role: .destructive) { bulkDelete() }

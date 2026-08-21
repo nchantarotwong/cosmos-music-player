@@ -14,7 +14,7 @@ import AppIntents
 struct FavoriteCurrentSongIntent: AppIntent {
     static let title: LocalizedStringResource = "Favorite Current Song"
     static let description = IntentDescription(
-        "Adds the currently playing Cosmos song to Liked Songs.",
+        "Adds the currently playing Aether song to Liked Songs.",
         categoryName: "Playback"
     )
     static let openAppWhenRun = false
@@ -49,7 +49,7 @@ enum FavoriteCurrentSongError: Error, CustomLocalizedStringResourceConvertible {
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .nothingPlaying:
-            "There isn't a song playing in Cosmos right now."
+            "There isn't a song playing in Aether right now."
         }
     }
 }

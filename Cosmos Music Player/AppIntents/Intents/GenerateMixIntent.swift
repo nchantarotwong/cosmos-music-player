@@ -19,7 +19,7 @@ struct GenerateMixIntent: AudioPlaybackIntent {
     )
     static let description = IntentDescription(
         LocalizedStringResource(
-            "Builds a mix from your Cosmos library matching a mood or description and starts playing it.",
+            "Builds a mix from your Aether library matching a mood or description and starts playing it.",
             comment: "Description of the Generate Mix intent shown in the Shortcuts gallery."
         ),
         categoryName: LocalizedStringResource(

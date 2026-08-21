@@ -175,7 +175,7 @@ struct PlaylistsScreen: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
                                 .frame(width: 56, height: 56)
-                                .background(Circle().fill(Color.accentColor))
+                                .background(Circle().fill(Aether.Color.primary))
                                 .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
                         }
                         .accessibilityLabel(Localized.aiPlaylistButton)
@@ -884,7 +884,7 @@ struct PlaylistDetailScreen: View {
                                 .padding(.horizontal, 8)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 56)
-                                .background(settings.backgroundColorChoice.color)
+                                .background(Aether.Color.primary)
                                 .cornerRadius(28)
                             }
                             .disabled(tracks.isEmpty)
@@ -903,11 +903,11 @@ struct PlaylistDetailScreen: View {
                                         .minimumScaleFactor(0.6)
                                 }
                                 .font(.title3.weight(.semibold))
-                                .foregroundColor(settings.backgroundColorChoice.color)
+                                .foregroundColor(Aether.Color.primary)
                                 .padding(.horizontal, 8)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 56)
-                                .background(settings.backgroundColorChoice.color.opacity(0.1))
+                                .background(Aether.Color.primary.opacity(0.1))
                                 .cornerRadius(28)
                             }
                             .disabled(tracks.isEmpty)
@@ -953,7 +953,7 @@ struct PlaylistDetailScreen: View {
                                     } label: {
                                         Label(Localized.playNext, systemImage: "text.line.first.and.arrowtriangle.forward")
                                     }
-                                    .tint(settings.backgroundColorChoice.color)
+                                    .tint(Aether.Color.primary)
                                 }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -1014,7 +1014,7 @@ struct PlaylistDetailScreen: View {
                                 }
                             } label: {
                                 Image(systemName: "arrow.up.arrow.down")
-                                    .foregroundColor(settings.backgroundColorChoice.color)
+                                    .foregroundColor(Aether.Color.primary)
                             }
                         }
                         .textCase(nil)
@@ -1324,7 +1324,7 @@ struct PlaylistTrackRowView: View {
                     // Stroke when playing (matching TrackRowView)
                     if isCurrentlyPlaying {
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(deleteSettings.backgroundColorChoice.color, lineWidth: 2)
+                            .stroke(Aether.Color.primary, lineWidth: 2)
                             .frame(width: 60, height: 60)
                     }
                 }
@@ -1334,13 +1334,13 @@ struct PlaylistTrackRowView: View {
                     Text(track.title)
                         .font(.title3)
                         .fontWeight(.medium)
-                        .foregroundColor(isCurrentlyPlaying ? deleteSettings.backgroundColorChoice.color : .primary)
+                        .foregroundColor(isCurrentlyPlaying ? Aether.Color.primary : .primary)
                         .lineLimit(1)
 
                     if let artistName, !artistName.isEmpty {
                         Text(artistName)
                             .font(.body)
-                            .foregroundColor(isCurrentlyPlaying ? deleteSettings.backgroundColorChoice.color.opacity(0.8) : .secondary)
+                            .foregroundColor(isCurrentlyPlaying ? Aether.Color.primary.opacity(0.8) : .secondary)
                             .lineLimit(1)
                     }
                 }
@@ -1350,7 +1350,7 @@ struct PlaylistTrackRowView: View {
                 // Equalizer animation when playing (matching TrackRowView)
                 if isCurrentlyPlaying {
                     EqualizerBarsExact(
-                        color: deleteSettings.backgroundColorChoice.color,
+                        color: Aether.Color.primary,
                         isActive: playerEngine.isPlaying && isCurrentlyPlaying,
                         isLarge: true,
                         trackId: playerEngine.currentTrack?.stableId
@@ -1432,7 +1432,7 @@ struct PlaylistTrackRowView: View {
         .padding(.horizontal, 12)
         .sheet(isPresented: $showPlaylistDialog) {
             PlaylistSelectionView(track: track)
-                .accentColor(deleteSettings.backgroundColorChoice.color)
+                .accentColor(Aether.Color.primary)
         }
         .alert(Localized.deleteFile, isPresented: $showDeleteConfirmation) {
             Button("Delete", role: .destructive) {
@@ -1617,7 +1617,7 @@ struct PlaylistSelectionView: View {
                                 // Main clickable area for add/remove
                                 HStack {
                                     Image(systemName: "music.note.list")
-                                        .foregroundColor(settings.backgroundColorChoice.color)
+                                        .foregroundColor(Aether.Color.primary)
 
                                     Text(playlist.title)
                                         .foregroundColor(.primary)
@@ -1630,7 +1630,7 @@ struct PlaylistSelectionView: View {
                                             .foregroundColor(.green)
                                     } else {
                                         Image(systemName: "plus.circle")
-                                            .foregroundColor(settings.backgroundColorChoice.color)
+                                            .foregroundColor(Aether.Color.primary)
                                     }
                                 }
                                 .contentShape(Rectangle())

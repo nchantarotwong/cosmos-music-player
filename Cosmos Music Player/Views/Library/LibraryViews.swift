@@ -303,7 +303,7 @@ struct LibraryView: View {
                     title: Localized.allSongs,
                     subtitle: Localized.songsCountOnly(tracks.count),
                     icon: "music.note",
-                    color: settings.backgroundColorChoice.color
+                    color: Aether.Color.primary
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -421,14 +421,14 @@ struct LibraryView: View {
 
                             Text("\(Localized.processing): \(libraryIndexer.currentlyProcessing)")
                                 .font(.caption2)
-                                .foregroundColor(settings.backgroundColorChoice.color)
+                                .foregroundColor(Aether.Color.primary)
                                 .lineLimit(1)
 
                             Spacer()
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
-                        .background(settings.backgroundColorChoice.color.opacity(0.05))
+                        .background(Aether.Color.primary.opacity(0.05))
                     }
 
                     // Large section rows
@@ -482,11 +482,11 @@ struct LibraryView: View {
                                                 if isRefreshing {
                                                     ProgressView()
                                                         .scaleEffect(0.8)
-                                                        .progressViewStyle(CircularProgressViewStyle(tint: settings.backgroundColorChoice.color))
+                                                        .progressViewStyle(CircularProgressViewStyle(tint: Aether.Color.primary))
                                                 } else {
                                                     Image(systemName: "arrow.clockwise")
                                                         .font(.system(size: 26, weight: .medium))
-                                                        .foregroundColor(settings.backgroundColorChoice.color)
+                                                        .foregroundColor(Aether.Color.primary)
                                                 }
                                             }
                                             .padding(.bottom, 4)
@@ -502,7 +502,7 @@ struct LibraryView: View {
                                     }) {
                                         Image(systemName: "magnifyingglass")
                                             .font(.system(size: 26, weight: .medium))
-                                            .foregroundColor(settings.backgroundColorChoice.color)
+                                            .foregroundColor(Aether.Color.primary)
                                     }
 
                                     // Settings button
@@ -511,7 +511,7 @@ struct LibraryView: View {
                                     }) {
                                         Image(systemName: "gearshape")
                                             .font(.system(size: 26, weight: .medium))
-                                            .foregroundColor(settings.backgroundColorChoice.color)
+                                            .foregroundColor(Aether.Color.primary)
                                     }
                                 }
                             }
@@ -696,7 +696,7 @@ struct LibraryView: View {
                     searchPlaylistToNavigate = playlist
                 }
             )
-            .accentColor(settings.backgroundColorChoice.color)
+            .accentColor(Aether.Color.primary)
         }
         .sheet(isPresented: $showMusicPicker) {
             MusicFilePicker { urls in
@@ -768,7 +768,7 @@ struct LibrarySectionRowView: View {
                 .opacity(0.8)
         )
         .cornerRadius(12)
-        .shadow(color: settings.backgroundColorChoice.color.opacity(0.15), radius: 4, x: 0, y: 2)
+        .shadow(color: Aether.Color.primary.opacity(0.15), radius: 4, x: 0, y: 2)
         .onReceive(NotificationCenter.default.publisher(for: .cosmosSettingsDidChange)) { _ in
             settings = DeleteSettings.load()
         }
@@ -794,7 +794,7 @@ struct AllSongsScreen: View {
                         shuffleAllSongs()
                     } label: {
                         Image(systemName: "shuffle")
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                     }
                     .disabled(tracks.isEmpty)
                 }
@@ -831,7 +831,7 @@ struct RecentlyAddedScreen: View {
                         shuffleRecentlyAdded()
                     } label: {
                         Image(systemName: "shuffle")
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                     }
                     .disabled(tracks.isEmpty)
                 }
@@ -867,7 +867,7 @@ struct LikedSongsScreen: View {
                         shuffleLikedSongs()
                     } label: {
                         Image(systemName: "shuffle")
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                     }
                     .disabled(likedTracks.isEmpty)
                 }
@@ -1089,7 +1089,7 @@ struct TrackListView: View {
             if isBulkMode {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(Localized.cancel) { exitBulkMode() }
-                        .foregroundColor(settings.backgroundColorChoice.color)
+                        .foregroundColor(Aether.Color.primary)
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -1115,7 +1115,7 @@ struct TrackListView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                             .font(.title3)
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                         // Increase hit area
                             .padding(4)
                             .contentShape(Rectangle())
@@ -1140,7 +1140,7 @@ struct TrackListView: View {
                     } label: {
                         Image(systemName: "arrow.up.arrow.down.circle")
                             .font(.title3)
-                            .foregroundColor(settings.backgroundColorChoice.color)
+                            .foregroundColor(Aether.Color.primary)
                             .padding(4)
                             .contentShape(Rectangle())
                     }
@@ -1149,7 +1149,7 @@ struct TrackListView: View {
         }
         .sheet(isPresented: $showBulkPlaylistDialog) {
             BulkPlaylistSelectionView(trackIds: Array(selectedTracks), onComplete: { exitBulkMode() })
-                .accentColor(settings.backgroundColorChoice.color)
+                .accentColor(Aether.Color.primary)
         }
         .alert(Localized.deleteFilesConfirmation, isPresented: $showBulkDeleteConfirmation) {
             Button(Localized.delete, role: .destructive) { bulkDelete() }
@@ -1270,7 +1270,7 @@ struct TrackListContentView: View {
                         if isBulkMode {
                             Image(systemName: selectedTracks.contains(track.stableId) ? "checkmark.circle.fill" : "circle")
                                 .font(.title2)
-                                .foregroundColor(selectedTracks.contains(track.stableId) ? settings.backgroundColorChoice.color : .secondary)
+                                .foregroundColor(selectedTracks.contains(track.stableId) ? Aether.Color.primary : .secondary)
                                 .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
                                 .onTapGesture { toggleSelection(for: track) }
@@ -1310,7 +1310,7 @@ struct TrackListContentView: View {
                             playerEngine.insertNext(track)
                             markAsActed(track.stableId)
                         } label: { Label(Localized.playNext, systemImage: "text.line.first.and.arrowtriangle.forward") }
-                            .tint(settings.backgroundColorChoice.color)
+                            .tint(Aether.Color.primary)
                     }
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -1410,7 +1410,7 @@ struct BulkPlaylistSelectionView: View {
                             }) {
                                 HStack {
                                     Image(systemName: "music.note.list")
-                                        .foregroundColor(settings.backgroundColorChoice.color)
+                                        .foregroundColor(Aether.Color.primary)
 
                                     Text(playlist.title)
                                         .foregroundColor(.primary)
@@ -1418,7 +1418,7 @@ struct BulkPlaylistSelectionView: View {
                                     Spacer()
 
                                     Image(systemName: "plus.circle")
-                                        .foregroundColor(settings.backgroundColorChoice.color)
+                                        .foregroundColor(Aether.Color.primary)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -1635,7 +1635,7 @@ struct SearchView: View {
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(Color(.systemGray6))
+                        .background(Aether.Color.surface)
                         .cornerRadius(10)
                     }
                     .padding(.horizontal, 16)
@@ -1655,8 +1655,8 @@ struct SearchView: View {
                                         .padding(.vertical, 8)
                                         .background(
                                             selectedCategory == category ?
-                                            settings.backgroundColorChoice.color :
-                                                Color(.systemGray6)
+                                            Aether.Color.primary :
+                                                Aether.Color.surface
                                         )
                                         .foregroundColor(
                                             selectedCategory == category ?
@@ -1691,7 +1691,7 @@ struct SearchView: View {
                         VStack(spacing: 16) {
                             ProgressView()
                                 .scaleEffect(1.2)
-                                .progressViewStyle(CircularProgressViewStyle(tint: settings.backgroundColorChoice.color))
+                                .progressViewStyle(CircularProgressViewStyle(tint: Aether.Color.primary))
 
                             Text("Searching...")
                                 .font(.subheadline)
@@ -1718,7 +1718,7 @@ struct SearchView: View {
                         Button(Localized.done) {
                             dismiss()
                         }
-                        .foregroundColor(settings.backgroundColorChoice.color)
+                        .foregroundColor(Aether.Color.primary)
                     }
                 }
             }
@@ -1831,7 +1831,7 @@ struct SearchView: View {
                                         artistName: artistDisplayNameCache[track.stableId] ?? track.artistId.flatMap { artistNameCache[$0] },
                                         onDismiss: onDismiss
                                     )
-                                    .shadow(color: settings.backgroundColorChoice.color.opacity(0.15), radius: 4, x: 0, y: 2)
+                                    .shadow(color: Aether.Color.primary.opacity(0.15), radius: 4, x: 0, y: 2)
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -1857,7 +1857,7 @@ struct SearchView: View {
                                             .fill(.ultraThinMaterial)
                                             .opacity(0.7)
                                     )
-                                    .shadow(color: settings.backgroundColorChoice.color.opacity(0.15), radius: 4, x: 0, y: 2)
+                                    .shadow(color: Aether.Color.primary.opacity(0.15), radius: 4, x: 0, y: 2)
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -1883,7 +1883,7 @@ struct SearchView: View {
                                                 .fill(.ultraThinMaterial)
                                                 .opacity(0.7)
                                         )
-                                        .shadow(color: settings.backgroundColorChoice.color.opacity(0.15), radius: 4, x: 0, y: 2)
+                                        .shadow(color: Aether.Color.primary.opacity(0.15), radius: 4, x: 0, y: 2)
                                         .padding(.horizontal, 16)
 
                                         // Show this artist's albums below
@@ -1917,7 +1917,7 @@ struct SearchView: View {
                                             .fill(.ultraThinMaterial)
                                             .opacity(0.7)
                                     )
-                                    .shadow(color: settings.backgroundColorChoice.color.opacity(0.15), radius: 4, x: 0, y: 2)
+                                    .shadow(color: Aether.Color.primary.opacity(0.15), radius: 4, x: 0, y: 2)
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -1976,7 +1976,7 @@ struct SearchView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white)
                             .frame(width: 36, height: 36)
-                            .background(settings.backgroundColorChoice.color)
+                            .background(Aether.Color.primary)
                             .clipShape(Circle())
                             .opacity(min(Double(swipeOffset) / swipeThreshold, 1.0))
                             .scaleEffect(min(Double(swipeOffset) / swipeThreshold, 1.0))
@@ -2011,7 +2011,7 @@ struct SearchView: View {
                             } else {
                                 Image(systemName: "music.note")
                                     .font(.system(size: 16))
-                                    .foregroundColor(settings.backgroundColorChoice.color)
+                                    .foregroundColor(Aether.Color.primary)
                             }
                         }
                         .frame(width: 40, height: 40)
@@ -2020,7 +2020,7 @@ struct SearchView: View {
 
                         if isCurrentlyPlaying {
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(settings.backgroundColorChoice.color, lineWidth: 1.5)
+                                .stroke(Aether.Color.primary, lineWidth: 1.5)
                                 .frame(width: 40, height: 40)
                         }
                     }
@@ -2029,7 +2029,7 @@ struct SearchView: View {
                         Text(track.title)
                             .font(.body)
                             .fontWeight(.medium)
-                            .foregroundColor(isCurrentlyPlaying ? settings.backgroundColorChoice.color : .primary)
+                            .foregroundColor(isCurrentlyPlaying ? Aether.Color.primary : .primary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .multilineTextAlignment(.leading)
@@ -2037,7 +2037,7 @@ struct SearchView: View {
                         if let artistName, !artistName.isEmpty {
                             Text(artistName)
                                 .font(.caption)
-                                .foregroundColor(isCurrentlyPlaying ? settings.backgroundColorChoice.color.opacity(0.8) : .secondary)
+                                .foregroundColor(isCurrentlyPlaying ? Aether.Color.primary.opacity(0.8) : .secondary)
                         }
                     }
 
@@ -2048,7 +2048,7 @@ struct SearchView: View {
                         let eqKey = "\(playerEngine.isPlaying && isCurrentlyPlaying)-\(playerEngine.currentTrack?.stableId ?? "")"
 
                         EqualizerBarsExact(
-                            color: settings.backgroundColorChoice.color,
+                            color: Aether.Color.primary,
                             isActive: playerEngine.isPlaying && isCurrentlyPlaying,
                             isLarge: false,
                             trackId: playerEngine.currentTrack?.stableId
@@ -2161,7 +2161,7 @@ struct SearchView: View {
             }
             .sheet(isPresented: $showPlaylistDialog) {
                 PlaylistSelectionView(track: track)
-                    .accentColor(settings.backgroundColorChoice.color)
+                    .accentColor(Aether.Color.primary)
             }
             .alert(Localized.deleteFile, isPresented: $showDeleteConfirmation) {
                 Button(Localized.delete, role: .destructive) {

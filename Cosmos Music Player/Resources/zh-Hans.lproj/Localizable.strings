@@ -27,7 +27,7 @@
 "create_first_playlist" = "创建你的第一个播放列表开始听歌吧";
 
 /* General UI strings */
-"all_songs" = "所有歌曲";
+"all_songs" = "歌曲";
 "recently_added" = "最近添加";
 "liked_songs" = "我喜欢的音乐";
 "add_songs" = "打开文件";
@@ -93,7 +93,7 @@
 "force_dark_mode" = "强制深色模式";
 "version" = "版本";
 "app_name" = "应用名称";
-"cosmos_music_player" = "Cosmos Music Player";
+"cosmos_music_player" = "Aether";
 "github_repository" = "GitHub 开源仓库";
 "use_simple_icons" = "在媒体库界面中移除图标的彩色背景，使用极简风格。";
 "override_system_appearance" = "无视 iOS 系统外观设置，强制让应用保持深色模式。";
@@ -125,7 +125,7 @@
 "icloud_connection_required" = "需要连接 iCloud";
 
 /* Tutorial/Onboarding */
-"welcome_to_cosmos" = "欢迎使用 Cosmos";
+"welcome_to_cosmos" = "欢迎使用 Aether";
 "sign_in_to_apple_id" = "登录 Apple ID";
 "sign_in_message" = "为了在多台设备间同步你的无损音乐和收藏夹，请确保已登录 Apple ID。";
 "if_signed_in_continue" = "如果你已登录，请点击继续";

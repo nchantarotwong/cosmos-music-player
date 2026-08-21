@@ -229,7 +229,7 @@ struct AlbumDetailScreen: View {
                                 .padding(.horizontal, 8)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 56)
-                                .background(settings.backgroundColorChoice.color)
+                                .background(Aether.Color.primary)
                                 .cornerRadius(28)
                             }
 
@@ -247,11 +247,11 @@ struct AlbumDetailScreen: View {
                                         .minimumScaleFactor(0.6)
                                 }
                                 .font(.title3.weight(.semibold))
-                                .foregroundColor(settings.backgroundColorChoice.color)
+                                .foregroundColor(Aether.Color.primary)
                                 .padding(.horizontal, 8)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 56)
-                                .background(settings.backgroundColorChoice.color.opacity(0.1))
+                                .background(Aether.Color.primary.opacity(0.1))
                                 .cornerRadius(28)
                             }
                         }
@@ -293,7 +293,7 @@ struct AlbumDetailScreen: View {
                                         if isBulkMode {
                                             TrackSelectionIndicator(
                                                 isSelected: selectedTracks.contains(track.stableId),
-                                                accentColor: settings.backgroundColorChoice.color,
+                                                accentColor: Aether.Color.primary,
                                                 onTap: { toggleSelection(track) }
                                             )
                                             .padding(.leading)
@@ -533,7 +533,7 @@ struct AlbumTrackRowView: View {
         }
         .sheet(isPresented: $showPlaylistDialog) {
             PlaylistSelectionView(track: track)
-                .accentColor(deleteSettings.backgroundColorChoice.color)
+                .accentColor(Aether.Color.primary)
         }
         .alert(Localized.deleteFile, isPresented: $showDeleteConfirmation) {
             Button("Delete", role: .destructive) {

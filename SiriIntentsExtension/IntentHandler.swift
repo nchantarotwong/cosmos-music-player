@@ -378,7 +378,7 @@ private enum SiriLanguageModelSongMatcher {
         }.joined(separator: "\n")
 
         let prompt = """
-        A person asked Siri to play a song from their private Cosmos library.
+        A person asked Siri to play a song from their private Aether library.
         Spoken words can be misspelled or transcribed phonetically. Select the
         one catalog entry that most likely means the requested song. Consider
         title, artist, album, soundtrack/franchise names, abbreviations and
@@ -451,7 +451,7 @@ class IntentHandler: INExtension, INPlayMediaIntentHandling, INAddMediaIntentHan
                 // repair a genuinely missing library item.
                 let missing = INMediaItem(
                     identifier: "cosmos_not_found",
-                    title: "I couldn't find that song in Cosmos",
+                    title: "I couldn't find that song in Aether",
                     type: .song,
                     artwork: nil,
                     artist: nil

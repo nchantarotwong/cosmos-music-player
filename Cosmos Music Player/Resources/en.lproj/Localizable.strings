@@ -307,17 +307,17 @@
 "Resumes playing your music where you left off." = "Resumes playing your music where you left off.";
 "Audio" = "Audio";
 "Play Music" = "Play Music";
-"Plays a song, album, artist or playlist from your Cosmos library." = "Plays a song, album, artist or playlist from your Cosmos library.";
+"Plays a song, album, artist or playlist from your Aether library." = "Plays a song, album, artist or playlist from your Aether library.";
 "Playback" = "Playback";
 "Add to Playlist" = "Add to Playlist";
 "Generate Mix" = "Generate Mix";
-"Builds a mix from your Cosmos library matching a mood or description and starts playing it." = "Builds a mix from your Cosmos library matching a mood or description and starts playing it.";
+"Builds a mix from your Aether library matching a mood or description and starts playing it." = "Builds a mix from your Aether library matching a mood or description and starts playing it.";
 "Toggle Favorite" = "Toggle Favorite";
 "Favorite Current Song" = "Favorite Current Song";
-"Adds the currently playing Cosmos song to Liked Songs." = "Adds the currently playing Cosmos song to Liked Songs.";
+"Adds the currently playing Aether song to Liked Songs." = "Adds the currently playing Aether song to Liked Songs.";
 "%@ is already in your Liked Songs." = "%@ is already in your Liked Songs.";
 "Added %@ to your Liked Songs." = "Added %@ to your Liked Songs.";
-"There isn't a song playing in Cosmos right now." = "There isn't a song playing in Cosmos right now.";
+"There isn't a song playing in Aether right now." = "There isn't a song playing in Aether right now.";
 "Add to Queue" = "Add to Queue";
 "Play Playlist" = "Play Playlist";
 "Save Mix as Playlist" = "Save Mix as Playlist";
@@ -341,7 +341,7 @@
 "Now playing" = "Now playing";
 
 /* Errors */
-"There's no music in your Cosmos library yet." = "There's no music in your Cosmos library yet.";
+"There's no music in your Aether library yet." = "There's no music in your Aether library yet.";
 "No matching music was found in your library." = "No matching music was found in your library.";
 "You can only take that action on individual songs." = "You can only take that action on individual songs.";
 "That song is already in this playlist." = "That song is already in this playlist.";
