@@ -204,9 +204,8 @@ struct AlbumDetailScreen: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             ScreenSpecificBackgroundView(screen: .albumDetail)
-            albumAmbientBackground
 
             ScrollView {
                 VStack(spacing: 24) {
@@ -378,6 +377,7 @@ struct AlbumDetailScreen: View {
                 }
                 .padding(.bottom, 100) // Add padding for mini player
             }
+            .background(albumAmbientBackground)
         }
         .navigationBarTitleDisplayMode(.inline)
         .trackBulkActions(

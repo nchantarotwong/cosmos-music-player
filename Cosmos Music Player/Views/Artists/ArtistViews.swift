@@ -167,6 +167,9 @@ struct ArtistDetailScreen: View {
     @State private var settings = DeleteSettings.load()
     @State private var isBulkMode = false
     @State private var selectedTracks: Set<String> = []
+    /// Cover of the artist's first track, used offline as the hero + ambient
+    /// source (no network-fetched artist imagery in the Aether redesign).
+    @State private var artistArtwork: UIImage?
 
     private var playerEngine: PlayerEngine {
         appCoordinator.playerEngine
@@ -197,11 +200,55 @@ struct ArtistDetailScreen: View {
         guard let artistId = artist.id else { return [] }
         return (try? appCoordinator.databaseManager.getAlbumsByArtistId(artistId)) ?? []
     }
-    
+
+    /// Responsive hero cover edge — large but leaves a comfortable margin.
+    private var heroArtSize: CGFloat {
+        min(UIScreen.main.bounds.width - 96, 320)
+    }
+
+    /// A soft, fixed ambient glow derived from the artist's music, fading into
+    /// the Aether canvas — same artwork-first language as Now Playing / Album.
+    private var artistAmbientBackground: some View {
+        Group {
+            if let image = artistArtwork {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 460)
+                    .clipped()
+                    .blur(radius: 60, opaque: true)
+                    .overlay(
+                        LinearGradient(
+                            colors: [
+                                Aether.Color.background.opacity(0.10),
+                                Aether.Color.background.opacity(0.55),
+                                Aether.Color.background
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .opacity(0.9)
+            }
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+
+    private func loadArtistArtwork() {
+        guard artistArtwork == nil, let first = artistTracks.first else { return }
+        Task {
+            let image = await ArtworkManager.shared.getArtwork(for: first)
+            await MainActor.run { artistArtwork = image }
+        }
+    }
+
     var body: some View {
         ZStack {
             ScreenSpecificBackgroundView(screen: .artistDetail)
-            
+
             Group {
                 if let unifiedArtist = unifiedArtist, !isLoading {
                     richArtistView(unifiedArtist)
@@ -209,6 +256,7 @@ struct ArtistDetailScreen: View {
                     simpleView
                 }
             }
+            .background(artistAmbientBackground)
         }
         .navigationBarTitleDisplayMode(.inline)
         .trackBulkActions(
@@ -216,7 +264,7 @@ struct ArtistDetailScreen: View {
             isBulkMode: $isBulkMode,
             selectedTracks: $selectedTracks
         )
-        .onAppear { loadArtistData() }
+        .onAppear { loadArtistData(); loadArtistArtwork() }
         .onReceive(NotificationCenter.default.publisher(for: .cosmosSettingsDidChange)) { _ in
             settings = DeleteSettings.load()
         }
@@ -355,8 +403,27 @@ struct ArtistDetailScreen: View {
     @ViewBuilder
     private var simpleHeader: some View {
         VStack(spacing: 16) {
+            RoundedRectangle(cornerRadius: Aether.Radius.featureCard)
+                .fill(Aether.Color.surfaceElevated)
+                .frame(width: heroArtSize, height: heroArtSize)
+                .overlay {
+                    if let image = artistArtwork {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: heroArtSize, height: heroArtSize)
+                            .clipShape(RoundedRectangle(cornerRadius: Aether.Radius.featureCard))
+                    } else {
+                        Image(systemName: "music.mic")
+                            .font(.system(size: 50))
+                            .foregroundColor(Aether.Color.textSecondary)
+                    }
+                }
+                .shadow(color: .black.opacity(0.45), radius: 24, x: 0, y: 12)
+                .padding(.top, 8)
+
             Text(artist.name)
-                .font(.largeTitle)
+                .font(.title2)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
