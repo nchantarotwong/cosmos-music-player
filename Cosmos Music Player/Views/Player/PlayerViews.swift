@@ -1,5 +1,146 @@
 import SwiftUI
 import AVKit
+import CoreImage
+
+// MARK: - XMB-style animated wave backdrop
+
+/// A nod to the PS3 XrossMediaBar: slow, crossing ribbons of light that wave
+/// across the backdrop. Tinted by the current cover's average color so it stays
+/// artwork-first, falling back to the Aether accent. Drawn with a single Canvas
+/// under a TimelineView so it animates cheaply and is layout-neutral.
+struct XMBWaveBackground: View {
+    let artwork: UIImage?
+    /// Stable id of the current track — drives the tint recompute (UIImage is
+    /// not Equatable, so we key the task on the id instead).
+    let artworkId: String?
+    @State private var tint: Color = Aether.Color.primary
+
+    private struct Ribbon {
+        let speed: Double
+        let ampFraction: CGFloat
+        let yFraction: CGFloat
+        let widthFraction: CGFloat
+        let opacity: Double
+        let usesAccent: Bool
+    }
+
+    // Defined ribbons of light clustered mid-screen: a thin bright core with a
+    // soft glow radiating out, gently waving — not a full-screen wash.
+    private let ribbons: [Ribbon] = [
+        Ribbon(speed: 0.70, ampFraction: 0.06, yFraction: 0.42, widthFraction: 0.05, opacity: 0.50, usesAccent: false),
+        Ribbon(speed: 0.50, ampFraction: 0.05, yFraction: 0.50, widthFraction: 0.06, opacity: 0.40, usesAccent: true),
+        Ribbon(speed: 0.95, ampFraction: 0.08, yFraction: 0.58, widthFraction: 0.04, opacity: 0.45, usesAccent: false),
+    ]
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            Canvas { context, size in
+                for ribbon in ribbons {
+                    draw(ribbon, in: &context, size: size, time: time)
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .task(id: artworkId) {
+            if let image = artwork, let color = image.averageColor {
+                tint = Color(uiColor: color.luminous)
+            } else {
+                tint = Aether.Color.primary
+            }
+        }
+    }
+
+    private func draw(_ ribbon: Ribbon, in context: inout GraphicsContext, size: CGSize, time: Double) {
+        let amplitude = size.height * ribbon.ampFraction
+        let baseY = size.height * ribbon.yFraction
+        let glowWidth = size.height * ribbon.widthFraction
+        let phase = time * ribbon.speed
+
+        var path = Path()
+        let step: CGFloat = 8
+        var x: CGFloat = -40
+        var started = false
+        while x <= size.width + 40 {
+            let norm = Double(x / max(size.width, 1))
+            let y = baseY + CGFloat(sin(norm * .pi * 2.0 + phase) * Double(amplitude))
+            if started {
+                path.addLine(to: CGPoint(x: x, y: y))
+            } else {
+                path.move(to: CGPoint(x: x, y: y))
+                started = true
+            }
+            x += step
+        }
+
+        let color = ribbon.usesAccent ? Aether.Color.primary : tint
+
+        // Soft glow radiating out from the ribbon.
+        context.drawLayer { layer in
+            layer.addFilter(.blur(radius: 26))
+            layer.stroke(
+                path,
+                with: .color(color.opacity(ribbon.opacity)),
+                style: StrokeStyle(lineWidth: glowWidth, lineCap: .round, lineJoin: .round)
+            )
+        }
+
+        // Thin bright core keeps the ribbon defined.
+        context.stroke(
+            path,
+            with: .color(color.opacity(min(1, ribbon.opacity + 0.4))),
+            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round)
+        )
+    }
+}
+
+/// Shared CIContext for the average-color reduction (cheap, reused per track).
+private let xmbAverageColorContext = CIContext(options: [.workingColorSpace: NSNull()])
+
+extension UIImage {
+    /// Average color of the image via a 1×1 CIAreaAverage reduction.
+    var averageColor: UIColor? {
+        guard let input = CIImage(image: self) else { return nil }
+        let extent = input.extent
+        guard extent.width > 0, extent.height > 0 else { return nil }
+        let params: [String: Any] = [
+            kCIInputImageKey: input,
+            kCIInputExtentKey: CIVector(cgRect: extent)
+        ]
+        guard let filter = CIFilter(name: "CIAreaAverage", parameters: params),
+              let output = filter.outputImage else { return nil }
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        xmbAverageColorContext.render(
+            output,
+            toBitmap: &bitmap,
+            rowBytes: 4,
+            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+            format: .RGBA8,
+            colorSpace: nil
+        )
+        return UIColor(
+            red: CGFloat(bitmap[0]) / 255,
+            green: CGFloat(bitmap[1]) / 255,
+            blue: CGFloat(bitmap[2]) / 255,
+            alpha: 1
+        )
+    }
+}
+
+extension UIColor {
+    /// A more saturated, brighter rendition so the wave reads as glowing light.
+    var luminous: UIColor {
+        var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard getHue(&h, saturation: &s, brightness: &b, alpha: &a) else { return self }
+        return UIColor(
+            hue: h,
+            saturation: min(1, s * 1.4 + 0.2),
+            brightness: min(1, b * 1.2 + 0.35),
+            alpha: 1
+        )
+    }
+}
 
 struct EqualizerBarsExact: View {
     let color: Color
@@ -116,6 +257,10 @@ struct PlayerView: View {
             // screen feels fullscreen and artwork-first.
             Aether.Color.background.ignoresSafeArea()
             ambientArtworkBackground
+            XMBWaveBackground(
+                artwork: currentArtwork,
+                artworkId: playerEngine.currentTrack?.stableId
+            )
             mainContent
         }
         // Cap Dynamic Type so large accessibility sizes don't overflow the player layout
